@@ -25,12 +25,12 @@ const mutations = {
 }
 
 const actions = {
-    login({commit}, logindata) {
+    login({commit}, id,pwd) {
         http
-            .get('/board',logindata)
+            .get('/board',{id,pwd})
             .then(({ data }) => {
                 commit('UPDATE_LOGIN', true);
-                commit('UPDATE_USERID', logindata.id);
+                commit('UPDATE_USERID', id);
                 commit('UPDATE_KEY', data);
             })
             .catch(() => {

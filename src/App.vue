@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    AN Happy House test
     <router-view></router-view>
   </div>
 </template>

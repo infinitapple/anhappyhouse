@@ -1,6 +1,6 @@
 <template>
   <div>
-      test page
+      houserent page
   </div>
 </template>
 

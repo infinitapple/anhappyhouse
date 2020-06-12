@@ -1,6 +1,6 @@
 <template>
   <div>
-      test page
+      interest page
   </div>
 </template>
 
