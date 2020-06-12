@@ -1,7 +1,7 @@
 <template>
   <div>
         <template v-if="search">
-            <input type="text" @keyup.enter="SetSearch" ref="searchtext" :value="searchtext" />
+            <input type="text" @keyup.enter="SetSearch" ref="searchtext" :value="stext" />
             <button @click="SetSearch">검색</button>
         </template>
       
@@ -22,12 +22,12 @@ import {mapGetters} from 'vuex';
 export default {
     props:['search'],
     computed:{
-        ...mapGetters(['searchtext','login','userid'])
+        ...mapGetters(['stext','login','userid'])
     },
     methods:{
         SetSearch(){
             alert("set");
-            this.$store.commit('setsearchtext',this.$refs.searchtext.value);
+            this.$store.dispatch('update_stext',this.$refs.searchtext.value);
         },
         moveInfo(){
             this.$router.push('/user/info');
