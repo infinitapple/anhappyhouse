@@ -1,6 +1,6 @@
 <template>
   <div>
-    <mainheader search="false" />
+    <mainheader search="false"/>
     <subheader :menulist="menulist" />
     <router-view />
   </div>

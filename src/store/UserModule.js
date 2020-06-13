@@ -39,6 +39,7 @@ const actions = {
     },
     logout({commit}) {
         commit('UPDATE_LOGIN', false);
+        commit('UPDATE_KEY', '');
     }
 }
 

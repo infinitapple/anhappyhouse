@@ -6,8 +6,9 @@ import store from '../store'
 Vue.use(VueRouter)
 
 const requireAuth = () => (to, from, next) => {
-  if(store.getters.login) return next()
-  next('/')
+    if(store.getters.login) return next()
+    store.commit('setloginmodal',true)
+    next('/search/apt')
 }
 
 const routes = [
@@ -25,7 +26,6 @@ const routes = [
   {
     path: '/user',
     name: 'user',
-    beforeEnter: requireAuth(),
     redirect: '/user/info',
     component: () => import('../components/page/user/User.vue'),
     children:[
@@ -33,21 +33,25 @@ const routes = [
         path: 'info',
         name: 'userinfo',
         component: () => import('../components/page/user/Info.vue'),
+        beforeEnter: requireAuth(),
       },
       {
         path: 'changepwd',
         name: 'userchangepwd',
         component: () => import('../components/page/user/ChangePwd.vue'),
+        beforeEnter: requireAuth(),
       },
       {
         path: 'resign',
         name: 'userresign',
         component: () => import('../components/page/user/Resign.vue'),
+        beforeEnter: requireAuth(),
       },
       {
         path: 'update',
         name: 'userupdate',
         component: () => import('../components/page/user/Update.vue'),
+        beforeEnter: requireAuth(),
       },
     ]
   },

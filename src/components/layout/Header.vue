@@ -13,18 +13,9 @@
     </div>
     <div v-else>
         <a href="#" @click.prevent="loginmodal">로그인</a>
+        <router-link to="/user">회원정보테스트</router-link>
     </div>
-    <loginmodal title="login" :visible.sync="modalvisible">
-        <div class="form-group">
-            <label for="id">아이디</label>
-            <input type="text" v-model="id" class="form-control" id="id"  placeholder="ID">
-        </div>
-        <div class="form-group">
-            <label for="pwd">비밀번호</label>
-            <input type="password" v-model="pwd" class="form-control" id="pwd" placeholder="Password" @keyup.enter="loginfunction">
-        </div>
-        <button class="btn btn-primary" @click="loginfunction">로그인</button>
-    </loginmodal>
+    <loginmodal title="login"/>
   </div>
 </template>
 
@@ -34,13 +25,6 @@ import loginmodal from '@/components/modal/Login.vue';
 
 export default {
     props:['search'],
-    data(){
-        return{
-            modalvisible: false,
-            id:'',
-            pwd:''
-        }
-    },
     components:{
         loginmodal
     },
@@ -48,7 +32,7 @@ export default {
         // ...mapState({
         //     searchtext: state => state.search.stext
         // }),
-        ...mapGetters(['stext','login','userid']),
+        ...mapGetters(['getloginmodal','stext','login','userid']),
     },
     methods:{
         ...mapActions(['update_stext']),
@@ -57,26 +41,13 @@ export default {
             alert("쿠키에 값 저장!");
         },
         loginmodal(){
-            this.modalvisible = !this.modalvisible;
+            this.$store.commit('setloginmodal',!this.getloginmodal);
             //로그인 모달 띄우기
-        },
-        loginfunction(){
-            //axios써서 인증서버에서 key가져오기
-            Promise.resolve().then(()=>{
-                //this.$store.dispatch('login',id,pwd);
-                const key = 'tempkey';
-                this.$store.commit('UPDATE_KEY',key);
-                this.$store.commit('UPDATE_USERID',this.id);
-                this.$store.commit('UPDATE_LOGIN',true);
-                alert('로그인');
-                this.modalvisible = !this.modalvisible;
-            }).catch(()=>{
-
-            });
         },
         logout(){
             this.$store.dispatch('logout');
             alert("로그아웃");
+            this.$router.push('/');
             //로그아웃
         }
     }

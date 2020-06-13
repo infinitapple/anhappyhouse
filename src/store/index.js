@@ -4,6 +4,7 @@ import createPersistedState from 'vuex-persistedstate';
 import Cookies from 'js-cookie';
 import user from './UserModule.js';
 import search from './SearchModule.js';
+import modal from './ModalModule.js';
 
 Vue.use(Vuex);
 
@@ -11,6 +12,7 @@ export default new Vuex.Store({
   modules:{
     user,
     search,
+    modal,
   },
   plugins:[
     createPersistedState({
