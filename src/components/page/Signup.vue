@@ -1,15 +1,11 @@
 <template>
   <div>
-      test page
+      signup page
   </div>
 </template>
 
 <script>
 export default {
-    name:'',
+    name:'signup',
 }
 </script>
-
-<style>
-
-</style>

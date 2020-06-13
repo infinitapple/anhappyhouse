@@ -1,15 +1,11 @@
 <template>
   <div>
-      test page
+      changepwd page
   </div>
 </template>
 
 <script>
 export default {
-    name:'',
+    name:'changepwd',
 }
 </script>
-
-<style>
-
-</style>

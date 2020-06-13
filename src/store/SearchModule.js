@@ -1,4 +1,4 @@
-import http from '@/util/http-api';
+import http from '../util/http-api';
 
 const state = {
     stext:'',

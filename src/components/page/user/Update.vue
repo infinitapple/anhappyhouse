@@ -1,15 +1,11 @@
 <template>
   <div>
-      test page
+      update page
   </div>
 </template>
 
 <script>
 export default {
-    name:'',
+    name:'userupdate',
 }
 </script>
-
-<style>
-
-</style>

@@ -1,15 +1,11 @@
 <template>
   <div>
-      test page
+      info page
   </div>
 </template>
 
 <script>
 export default {
-    name:'',
+    name:'userinfo',
 }
 </script>
-
-<style>
-
-</style>

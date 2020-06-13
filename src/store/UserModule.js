@@ -1,11 +1,10 @@
-import http from '@/util/http-auth';
+import http from '../util/http-auth';
 
 const state = {
     login:false,
     userid:'',
     key:'',
 }
-
 const getters = {
     'login': state => state.login,
     'userid': state => state.userid,

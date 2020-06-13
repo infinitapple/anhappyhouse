@@ -6,10 +6,6 @@
 
 <script>
 export default {
-    name:'',
+    name:'searchhouse',
 }
 </script>
-
-<style>
-
-</style>

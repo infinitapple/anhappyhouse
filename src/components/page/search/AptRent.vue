@@ -6,10 +6,6 @@
 
 <script>
 export default {
-    name:'',
+    name:'searchaptrent',
 }
 </script>
-
-<style>
-
-</style>

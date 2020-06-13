@@ -9,7 +9,3 @@ export default {
     name:'SearchApt',
 }
 </script>
-
-<style>
-
-</style>

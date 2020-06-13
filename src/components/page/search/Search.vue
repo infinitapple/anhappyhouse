@@ -1,14 +1,14 @@
 <template>
   <div>
-    <mainheader search="ture" />
-    <subheader :menulist="menulist" />
-    <router-view />
+    <mainheader search="ture"/>
+    <subheader :menulist="menulist"/>
+    <router-view/>
   </div>
 </template>
 
 <script>
-import mainheader from '@/components/layout/Header.vue';
-import subheader from '@/components/layout/SubHeader.vue';
+import mainheader from '../../layout/Header.vue';
+import subheader from '../../layout/SubHeader.vue';
 
 export default {
   data(){
@@ -43,7 +43,3 @@ export default {
   }
 }
 </script>
-
-<style>
-
-</style>

@@ -1,91 +1,95 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import Home from '../components/page/Index.vue'
+import store from '../store'
 
-import Index from '@/components/page/Index.vue';
+Vue.use(VueRouter)
 
-import User from '@/components/page/user/User.vue';
-import UserInfo from '@/components/page/user/Info.vue';
-import UserChangePwd from '@/components/page/user/ChangePwd.vue';
-import UserResign from '@/components/page/user/Resign.vue';
-import UserUpdate from '@/components/page/user/Update.vue';
+const requireAuth = () => (to, from, next) => {
+  if(store.getters.login) return next()
+  next('/')
+}
 
-import Search from '@/components/page/search/Search.vue';
-import SearchApt from '@/components/page/search/Apt.vue';
-import SearchHouse from '@/components/page/search/House.vue';
-import SearchInterest from '@/components/page/search/Interest.vue';
-import SearchAptRent from '@/components/page/search/AptRent.vue';
-import SearchHouseRent from '@/components/page/search/HouseRent.vue';
-
-Vue.use(VueRouter);
-
-export default new VueRouter({
-    mode: 'history',
-    routes : [
-        {
-            path: '/',
-            name: 'Index',
-            component: Index,
-            redirect: '/search/apt',
-        },
-        {
-            path: '/user',
-            component: User,
-            redirect: '/user/info',
-            children:[
-                {
-                    path: 'info',
-                    name: 'UserInfo',
-                    component: UserInfo
-                },
-                {
-                    path: 'changepwd',
-                    name: 'UserChangePwd',
-                    component: UserChangePwd
-                },
-                {
-                    path: 'resign',
-                    name: 'UserResign',
-                    component: UserResign
-                },
-                {
-                    path: 'update',
-                    name: 'UserUpdate',
-                    component: UserUpdate
-                },
-            ]
-        },
-        {
-            path: '/search',
-            component: Search,
-            redirect: '/search/apt',
-            children:[
-                {
-                    path: 'apt',
-                    name: 'SearchApt',
-                    component: SearchApt
-                },
-                {
-                    path: 'house',
-                    name: 'SearchHouse',
-                    component: SearchHouse
-                },
-                {
-                    path: 'interest',
-                    name: 'SearchInterest',
-                    component: SearchInterest
-                },
-                {
-                    path: 'aptrent',
-                    name: 'SearchAptRent',
-                    component: SearchAptRent
-                },
-                {
-                    path: 'houserent',
-                    name: 'SearchHouseRent',
-                    component: SearchHouseRent
-                },
-            ]
-        },
-          
+const routes = [
+  {
+    path: '/',
+    name: 'home',
+    component: Home,
+    redirect: '/search/apt'
+  },
+  {
+    path: '/signup',
+    name: 'signup',
+    component: () => import('../components/page/Signup.vue'),
+  },
+  {
+    path: '/user',
+    name: 'user',
+    beforeEnter: requireAuth(),
+    redirect: '/user/info',
+    component: () => import('../components/page/user/User.vue'),
+    children:[
+      {
+        path: 'info',
+        name: 'userinfo',
+        component: () => import('../components/page/user/Info.vue'),
+      },
+      {
+        path: 'changepwd',
+        name: 'userchangepwd',
+        component: () => import('../components/page/user/ChangePwd.vue'),
+      },
+      {
+        path: 'resign',
+        name: 'userresign',
+        component: () => import('../components/page/user/Resign.vue'),
+      },
+      {
+        path: 'update',
+        name: 'userupdate',
+        component: () => import('../components/page/user/Update.vue'),
+      },
     ]
-});
+  },
+  {
+    path: '/search',
+    name:'search',
+    component: () => import('../components/page/search/Search.vue'),
+    children:[
+      {
+        path: 'apt',
+        name: 'searchapt',
+        component: () => import('../components/page/search/Apt.vue'),
+      },
+      {
+        path: 'house',
+        name: 'searchhouse',
+        component: () => import('../components/page/search/House.vue'),
+      },
+      {
+        path: 'interest',
+        name: 'searchinterest',
+        component: () => import('../components/page/search/Interest.vue'),
+        beforeEnter: requireAuth(),
+      },
+      {
+        path: 'aptrent',
+        name: 'searchaptrent',
+        component: () => import('../components/page/search/AptRent.vue'),
+      },
+      {
+        path: 'houserent',
+        name: 'searchhouserent',
+        component: () => import('../components/page/search/HouseRent.vue'),
+      },
+    ]
+  }
+]
+
+const router = new VueRouter({
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes
+})
+
+export default router

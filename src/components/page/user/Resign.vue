@@ -1,15 +1,11 @@
 <template>
   <div>
-      test page
+      resign page
   </div>
 </template>
 
 <script>
 export default {
-    name:'',
+    name:'userresign',
 }
 </script>
-
-<style>
-
-</style>
