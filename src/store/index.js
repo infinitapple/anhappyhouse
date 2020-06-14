@@ -16,9 +16,9 @@ export default new Vuex.Store({
   },
   plugins:[
     createPersistedState({
-      paths:['user','search'],
+      paths:['user'],
       getState: (key) => Cookies.getJSON(key),
-      setState: (key, state) => Cookies.set(key,state,{ expires: 3 }),
+      setState: (key, state) => Cookies.set(key,state,{ expires: 1 }),
 
       // storage:{
       //   getItem: key => {

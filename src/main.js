@@ -12,5 +12,5 @@ if (window.location.hostname.indexOf('local')>-1){
 new Vue({
   store,
   router,
-  render: h => h(App)
+  render: h => h(App),
 }).$mount('#app')

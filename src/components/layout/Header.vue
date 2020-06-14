@@ -13,7 +13,6 @@
     </div>
     <div v-else>
         <a href="#" @click.prevent="loginmodal">로그인</a>
-        <router-link to="/user">회원정보테스트</router-link>
     </div>
     <loginmodal title="login"/>
   </div>
@@ -38,9 +37,9 @@ export default {
         ...mapActions(['update_stext']),
         SetSearch(){
             this.update_stext(this.$refs.searchtext.value);
-            alert("쿠키에 값 저장!");
         },
         loginmodal(){
+            this.$store.commit('setloginmsg','');
             this.$store.commit('setloginmodal',!this.getloginmodal);
             //로그인 모달 띄우기
         },

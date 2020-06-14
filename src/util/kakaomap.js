@@ -1,6 +1,6 @@
 import loadScriptOnce from 'load-script-once'
 
-const DAUM_KAKAO_API_JS_KEY = '===REDACTED==='
+const DAUM_KAKAO_API_JS_KEY = '3316f7c5ff4f22e27a6cb06d55fbf336'
 const DAUM_KAKAO_MAP_LIB_URL = `//dapi.kakao.com/v2/maps/sdk.js?appkey=${DAUM_KAKAO_API_JS_KEY}&libraries=drawing,clusterer,services&autoload=false`
 
 class Map {

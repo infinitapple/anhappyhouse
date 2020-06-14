@@ -4,9 +4,13 @@ import Home from '../components/page/Index.vue'
 import store from '../store'
 
 Vue.use(VueRouter)
-
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 const requireAuth = () => (to, from, next) => {
     if(store.getters.login) return next()
+    store.commit('setloginmsg','로그인이 필요한 서비스입니다.')
     store.commit('setloginmodal',true)
     next('/search/apt')
 }
