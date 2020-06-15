@@ -8,7 +8,7 @@
             <span class="modal__msg"><strong>{{getloginmsg}}</strong></span>
             <div class="form-group">
                 <label for="id">아이디</label>
-                <input type="text" v-model="id" class="form-control" id="id"  placeholder="ID">
+                <input type="text" v-model="id" class="form-control" id="id" ref='id'  placeholder="ID">
             </div>
             <div class="form-group">
                 <label for="pwd">비밀번호</label>
@@ -24,12 +24,12 @@
 </template>
 
 <script>
-import {mapGetters,mapActions} from 'vuex';
+import {mapGetters,mapMutations,mapActions} from 'vuex';
 
 export default {
     props:['title'],
     computed:{
-        ...mapGetters(['getloginmodal','getloginmsg'])
+        ...mapGetters(['getloginmodal','getloginmsg','login'])
     },
     data(){
         return{
@@ -38,23 +38,21 @@ export default {
         }
     },
     methods:{
-        ...mapActions(['login']),
+        ...mapActions(['action_login']),
+        ...mapMutations(['setloginmodal','setloginmsg']),
         handleWrapperClick(){
-            this.$store.commit('setloginmodal',false)
+            this.setloginmodal(false);
         },
-        loginfunction(){
+        async loginfunction (){
             //axios써서 인증서버에서 key가져오기
-            Promise.resolve().then(()=>{
-                //this.login(id,pwd);
-                const key = 'tempkey';
-                this.$store.commit('UPDATE_KEY',key);
-                this.$store.commit('UPDATE_USERID',this.id);
-                this.$store.commit('UPDATE_LOGIN',true);
-                alert('로그인');
-                this.$store.commit('setloginmodal',!this.getloginmodal);
-            }).catch(()=>{
-
-            });
+            await this.action_login(this.id,this.pwd);
+            if(this.login){
+                this.setloginmodal(false);
+            }else{
+                this.setloginmsg('아이디와 비밀번호가 일치하지 않습니다.');
+                this.pwd='';
+                this.$refs.id.focus();
+            }
         }
     }
 }

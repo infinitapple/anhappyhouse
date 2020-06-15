@@ -2,7 +2,8 @@
   <div class="modal__dialog" v-if="getsearchmodal">
     <div class="modal__body">
         검색에 대한 아파트리스트 정보들이 보여집니다.
-        <div v-html="infoitems"></div>
+        <slot></slot>
+        
     </div>
   </div>
 </template>

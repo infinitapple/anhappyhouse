@@ -3,7 +3,11 @@
       aptrent page
       <button @click="testadd">마커테스트</button>
       <div id="map"></div>
-      <searchmodal/>
+      <searchmodal>
+        <div v-for="(infoitem, idx) in infoitems" :key="idx">
+          <a href="#" @click.prevent="selectmarker(infoitem)">{{infoitem.kapt_name}}</a>
+        </div>
+      </searchmodal>
       <infomodal/>
       <selectmodal/>
   </div>
@@ -22,7 +26,8 @@ export default {
     return{
       //markers:[],
       overlays:[],
-      map:null
+      map:null,
+      geocode:null,
     }
   },
   components:{
@@ -53,9 +58,9 @@ export default {
     ...mapMutations(['setsearchmodal','setinfomodal']),
     testadd(){
       let latlng = this.map.getCenter();
-      let name = 'test';
       this.infoitems.push({
-        name,
+        kapt_name:'테스트',
+        road_name:'제주특별자치도 제주시 첨단로 242',
         lat:latlng.getLat(),
         lng:latlng.getLng()
       });
@@ -63,48 +68,80 @@ export default {
     selectmarker(item){
       this.setinfomodal(true);
       this.$store.commit('UPDATE_ITEM',item);
+      this.panTo(item.lat,item.lng);
       //
     },
     startsearch(){
       this.setsearchmodal(true);
       //alert('검색한 내용'+this.stext);
-
     },
     initMap() {
       if(!this.map){
         let container = document.getElementById('map');
         let options = { 
-          center: new kakao.maps.LatLng(this.infoitems.length?this.infoitems[0].lat:33.450701, this.infoitems.length?this.infoitems[0].lng:126.570667),
+          center: new kakao.maps.LatLng(33.450701, 126.570667),
           level: 3
         };
         this.map = new kakao.maps.Map(container, options);
+      }
+      if(!this.geocode){
+        this.geocoder = new kakao.maps.services.Geocoder();
       }
       this.setOverlays(null);
       this.overlays=[];
       //this.setMarkers(null);
       //this.markers=[];
-      this.infoitems.map(item=>{
-        let content = document.createElement('div');
-        content.className = 'overlay';
-        content.innerHTML = item.name;
-        let position = new kakao.maps.LatLng(item.lat, item.lng);
-        let overlay = new kakao.maps.CustomOverlay({
-          content,
-          position
-        });
-        //let marker = new kakao.maps.Marker({ position,clickable: true });
-        // kakao.maps.event.addListener(overlay, 'click', ()=> {
-        //   this.selectmarker(item);
-        // });
-        // this.markers.push(marker);
-        // marker.setMap(this.map);
-        content.addEventListener('mouseup',()=>{
-          this.selectmarker(item);
-        })
-        this.overlays.push(overlay);
-        overlay.setMap(this.map);
+      if(this.infoitems)this.infoitems.map(item=>{
+        let position=null;
+        console.log()
+        if(item.lat==null){
+          this.geocoder.addressSearch(item.road_name, (result,status)=>{
+            if(status===kakao.maps.services.Status.OK){
+              position= new kakao.maps.LatLng(result[0].y,result[0].x);
+              item.lat = position.getLat();
+              item.lng = position.getLng();
+              this.createOverlays(position,item);
+              //item을 업데이트
+            }else{
+              position= new kakao.maps.LatLng(33.450701, 126.570667);
+              item.lat = position.getLat();
+              item.lng = position.getLng();
+              this.createOverlays(position,item);
+            }
+          });
+        }else{
+          console.log('not');
+          position = new kakao.maps.LatLng(item.lat,item.lng);
+          this.createOverlays(position,item);
+        }
       });
     },
+    createOverlays(position,item){
+      let content = document.createElement('div');
+      content.className = 'overlay';
+      content.innerHTML = item.kapt_name;
+      //position = new kakao.maps.LatLng(item.lat, item.lng);
+      let overlay = new kakao.maps.CustomOverlay({
+        content,
+        position
+      });
+      //let marker = new kakao.maps.Marker({ position,clickable: true });
+      // kakao.maps.event.addListener(overlay, 'click', ()=> {
+      //   this.selectmarker(item);
+      // });
+      // this.markers.push(marker);
+      // marker.setMap(this.map);
+      content.addEventListener('mouseup',()=>{
+        this.selectmarker(item);
+      })
+      this.overlays.push(overlay);
+      overlay.setMap(this.map);
+      this.selectmarker(this.infoitems[0]);
+    },
+    panTo(lat,lng) {
+      let moveLatLon = new kakao.maps.LatLng(lat, lng);
+      this.map.panTo(moveLatLon);            
+    },   
     setOverlays(map) {
       this.overlays.map(overlay=>{overlay.setMap(map);});
     },
@@ -117,7 +154,7 @@ export default {
       const script = document.createElement('script');
       /* global kakao */
       script.onload = () => kakao.maps.load(this.initMap);
-      script.src = 'http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=3316f7c5ff4f22e27a6cb06d55fbf336';
+      script.src = 'http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=3316f7c5ff4f22e27a6cb06d55fbf336&libraries=services';
       document.head.appendChild(script);
     }
   }

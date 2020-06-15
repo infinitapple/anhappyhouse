@@ -34,9 +34,10 @@ export default {
         ...mapGetters(['getloginmodal','stext','login','userid']),
     },
     methods:{
-        ...mapActions(['update_stext']),
+        ...mapActions(['update_infoitemsfromtext','update_stext']),
         SetSearch(){
             this.update_stext(this.$refs.searchtext.value);
+            this.update_infoitemsfromtext('aptinfo');
         },
         loginmodal(){
             this.$store.commit('setloginmsg','');

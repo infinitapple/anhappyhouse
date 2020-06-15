@@ -4,11 +4,13 @@ const state = {
     login:false,
     userid:'',
     key:'',
+    userinfo:{}
 }
 const getters = {
     'login': state => state.login,
     'userid': state => state.userid,
     'key': state => state.key,
+    'userinfo': state => state.userinfo,
 }
 
 const mutations = {
@@ -21,12 +23,15 @@ const mutations = {
     UPDATE_KEY(state, data) {
         state.key = data
     },
+    UPDATE_USERINFO(state, data) {
+        state.userinfo = data
+    },
 }
 
 const actions = {
-    login({commit}, id,pwd) {
+    action_login({commit}, id,pwd) {
         http
-            .get('/board',{id,pwd})
+            .post('/login',{id,pwd})
             .then(({ data }) => {
                 commit('UPDATE_LOGIN', true);
                 commit('UPDATE_USERID', id);
@@ -34,13 +39,50 @@ const actions = {
             })
             .catch(() => {
                 commit('UPDATE_LOGIN', false);
-                alert('로그인 중 에러가 발생했습니다.');
             });
     },
-    logout({commit}) {
+    action_logout({commit}) {
         commit('UPDATE_LOGIN', false);
         commit('UPDATE_KEY', '');
-    }
+    },
+    action_getuserinfo({getters,commit}) {
+        http
+            .get('/user/getuserinfo/'+getters.userid)
+            .then(({ data }) => {
+                commit('UPDATE_USERINFO', data);
+            })
+            .catch(() => {
+                commit('UPDATE_LOGIN', false);
+            });
+    },
+    action_changepwd({commit},id,pwd) {
+        http
+            .put('/changepwd',{id,pwd})
+            .then(() => {
+            })
+            .catch(() => {
+                commit('UPDATE_LOGIN', false);
+            });
+    },
+    action_changeuserinfo({commit},userdata) {
+        http
+            .put('/changeuserinfo',userdata)
+            .then(() => {
+                commit('UPDATE_USERINFO', userdata);
+            })
+            .catch(() => {
+                commit('UPDATE_LOGIN', false);
+            });
+    },
+    action_resign({commit},user_id,user_pwd) {
+        http
+            .delete('/resign',{user_id,user_pwd})
+            .then(() => {
+            })
+            .catch(() => {
+                commit('UPDATE_LOGIN', false);
+            });
+    },
 }
 
 export default {
