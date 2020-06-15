@@ -80,16 +80,6 @@ const routes = [
         component: () => import('../components/page/search/Interest.vue'),
         beforeEnter: requireAuth(),
       },
-      {
-        path: 'aptrent',
-        name: 'searchaptrent',
-        component: () => import('../components/page/search/AptRent.vue'),
-      },
-      {
-        path: 'houserent',
-        name: 'searchhouserent',
-        component: () => import('../components/page/search/HouseRent.vue'),
-      },
     ]
   }
 ]
