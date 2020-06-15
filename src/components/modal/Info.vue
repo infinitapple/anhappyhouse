@@ -6,8 +6,14 @@
     </header>
     <div class="modal__body">
         해당 아파트에 대한 실거래가, 그래프 등의 정보나 보여집니다.
-        <div v-html="dealitems"></div>
-        <div v-html="item"></div>
+        <div v-html="item"></div> <br>
+        
+        <div v-if="dealitems&&dealitems.length">
+            <div v-html="dealitems"></div>
+        </div>
+        <div v-else>
+            거래내역이 없습니다.
+        </div>
     </div>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    apt page {{testmsg}}
+    apt page
     <button @click="testadd">마커테스트</button>
     <div id="map"></div>
     <searchmodal>
@@ -18,23 +18,16 @@ import searchmodal from '@/components/modal/Search.vue';
 import infomodal from '@/components/modal/Info.vue';
 import selectmodal from '@/components/modal/Select.vue';
 
-import {mapGetters,mapMutations,mapActions} from 'vuex';
+import {mapGetters,mapMutations} from 'vuex';
 export default {
   name:'searchaptrent',
-  mounted() { window.kakao && window.kakao.maps ? this.initMap() : this.addScript();},
+  mounted() { window.kakao && window.kakao.maps ? this.initMap() : this.addScript(); },
   data(){
     return{
-      testmsg:'',
-      searchtype:'aptinfo',
+      //markers:[],
       overlays:[],
       map:null,
       geocode:null,
-    }
-  },
-  created(){
-    if(this.stext.length>0){
-      this.update_stype(this.searchtype),
-      this.update_infoitemsfromtext();
     }
   },
   components:{
@@ -52,12 +45,17 @@ export default {
       },
       immediate: false,
     },
+    stext:{
+      handler () {
+        if (typeof window === 'undefined') return // SSR
+        if (this.stext == '') return
+        this.startsearch()
+      },
+      immediate: true,
+    },
   },
   methods : {
     ...mapMutations(['setsearchmodal','setinfomodal']),
-    ...mapActions(['movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
-
-/////////////////////////////////////////////////////////////for debug
     testadd(){
       let latlng = this.map.getCenter();
       this.infoitems.push({
@@ -67,98 +65,87 @@ export default {
         lng:latlng.getLng()
       });
     },
-/////////////////////////////////////////////////////////////for debug end
-
     selectmarker(item){
+      console.log('call');
       this.setinfomodal(true);
       this.$store.commit('UPDATE_ITEM',item);
       this.panTo(item.lat,item.lng);
+      //
     },
-
-    scrollevent(){
-      if(this.map){
-        let latlng = this.map.getCenter();  
-        //좌표로 행정코드 알아내기
-        this.geocoder.coord2RegionCode(latlng.getLng(), latlng.getLat(),(result, status)=>{
-          if (status === kakao.maps.services.Status.OK) {
-            for(let i = 0; i < result.length; i++) {
-              // 행정동의 region_type 값은 'H' 이므로
-              if (result[i].region_type === 'B') {
-                this.movemap(result[i].code);
-                break;
-              }
-            }
-          }
-        });
-        this.testmsg = '변경된 지도 중심좌표는 ' + latlng.getLat() + ' 이고, ';
-        this.testmsg += '경도는 ' + latlng.getLng() + ' 입니다';
-      }
+    startsearch(){
+      this.setsearchmodal(true);
+      //alert('검색한 내용'+this.stext);
     },
-
-    initMap() {
+    async initMap() {
       if(!this.map){
         let container = document.getElementById('map');
         let options = { 
-          center: new kakao.maps.LatLng(35.197636928054486, 126.81424906768534),
+          center: new kakao.maps.LatLng(33.450701, 126.570667),
           level: 3
         };
         this.map = new kakao.maps.Map(container, options);
-        kakao.maps.event.addListener(this.map, 'dragend', this.scrollevent);
       }
       if(!this.geocode){
         this.geocoder = new kakao.maps.services.Geocoder();
       }
-
       this.setOverlays(null);
       this.overlays=[];
+      //this.setMarkers(null);
+      //this.markers=[];
+      
       if(this.infoitems){
         this.infoitems.map(item=>{
+          let position=null;
+          console.log()
           if(item.lat==null){
-            this.geocoder.addressSearch(item.road_name, (result,status)=>{
+            let promise = new Promise(()=>{this.geocoder.addressSearch(item.road_name, (result,status)=>{
               if(status===kakao.maps.services.Status.OK){
-                item.lat = result[0].y;
-                item.lng = result[0].x;
-                this.createOverlays(item);
-                console.log('update to server');
-                this.update_itemlatlng(item);//item을 서버에 업데이트
+                position= new kakao.maps.LatLng(result[0].y,result[0].x);
+                item.lat = position.getLat();
+                item.lng = position.getLng();
+                this.createOverlays(position,item);
+                //item을 업데이트
               }else{
-                item.lat = 33.450701;
-                item.lng = 126.570667;
-                this.createOverlays(item);
+                position= new kakao.maps.LatLng(33.450701, 126.570667);
+                item.lat = position.getLat();
+                item.lng = position.getLng();
+                this.createOverlays(position,item);
               }
-            });
+            });});
+            promise.then(this.selectmarker(this.infoitems[0]));
           }else{
-            this.createOverlays(item);
+            position = new kakao.maps.LatLng(item.lat,item.lng);
+            this.createOverlays(position,item);
           }
         });
-      }
-      this.setinfomodal(false);
-      if(this.infoitems.legnth==0){
-        this.scrollevent();
+        //this.selectmarker(this.infoitems[0]);
       }
     },
-    createOverlays(item){
-      let position = new kakao.maps.LatLng(item.lat,item.lng);
+    createOverlays(position,item){
       let content = document.createElement('div');
       content.className = 'overlay';
       content.innerHTML = item.kapt_name;
+      //position = new kakao.maps.LatLng(item.lat, item.lng);
       let overlay = new kakao.maps.CustomOverlay({
         content,
         position
       });
+      //let marker = new kakao.maps.Marker({ position,clickable: true });
+      // kakao.maps.event.addListener(overlay, 'click', ()=> {
+      //   this.selectmarker(item);
+      // });
+      // this.markers.push(marker);
+      // marker.setMap(this.map);
       content.addEventListener('mouseup',()=>{
         this.selectmarker(item);
       })
       this.overlays.push(overlay);
       overlay.setMap(this.map);
     },
-    panTo(lat,lng,level) {
+    panTo(lat,lng) {
       let moveLatLon = new kakao.maps.LatLng(lat, lng);
-      this.map.panTo(moveLatLon);
-      setTimeout(()=>{
-          this.map.setLevel(level,{animation:true})
-        },200); 
-    },
+      this.map.panTo(moveLatLon);            
+    },   
     setOverlays(map) {
       this.overlays.map(overlay=>{overlay.setMap(map);});
     },

@@ -31,13 +31,14 @@ export default {
         // ...mapState({
         //     searchtext: state => state.search.stext
         // }),
-        ...mapGetters(['getloginmodal','stext','login','userid']),
+        ...mapGetters(['getloginmodal','stext','login','userid','stype']),
     },
     methods:{
-        ...mapActions(['update_infoitemsfromtext','update_stext']),
+        ...mapActions(['update_movecenter','update_infoitemsfromtext','update_stext']),
         SetSearch(){
             this.update_stext(this.$refs.searchtext.value);
-            this.update_infoitemsfromtext('aptinfo');
+            this.update_movecenter(true);
+            this.update_infoitemsfromtext();
         },
         loginmodal(){
             this.$store.commit('setloginmsg','');

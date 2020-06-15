@@ -1,6 +1,6 @@
 <template>
   <div>
-    apt page
+    apt page {{testmsg}}
     <button @click="testadd">마커테스트</button>
     <div id="map"></div>
     <searchmodal>
@@ -18,16 +18,23 @@ import searchmodal from '@/components/modal/Search.vue';
 import infomodal from '@/components/modal/Info.vue';
 import selectmodal from '@/components/modal/Select.vue';
 
-import {mapGetters,mapMutations} from 'vuex';
+import {mapGetters,mapMutations,mapActions} from 'vuex';
 export default {
   name:'searchaptrent',
-  mounted() { window.kakao && window.kakao.maps ? this.initMap() : this.addScript(); },
+  mounted() { window.kakao && window.kakao.maps ? this.initMap() : this.addScript();},
   data(){
     return{
-      //markers:[],
+      testmsg:'',
+      searchtype:'aptinfo',
       overlays:[],
       map:null,
       geocode:null,
+    }
+  },
+  created(){
+    if(this.stext.length>0){
+      this.update_stype(this.searchtype),
+      this.update_infoitemsfromtext();
     }
   },
   components:{
@@ -36,26 +43,21 @@ export default {
       selectmodal
   },
   computed:{
-    ...mapGetters(['infoitems','stext'])
+    ...mapGetters(['movecenter','infoitems','stext'])
   },
   watch: {
-    infoitems: {
+    infoitems: { 
       handler () {
         window.kakao && window.kakao.maps ? this.initMap() : null;
       },
       immediate: false,
     },
-    stext:{
-      handler () {
-        if (typeof window === 'undefined') return // SSR
-        if (this.stext == '') return
-        this.startsearch()
-      },
-      immediate: true,
-    },
   },
   methods : {
     ...mapMutations(['setsearchmodal','setinfomodal']),
+    ...mapActions(['update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
+
+/////////////////////////////////////////////////////////////for debug
     testadd(){
       let latlng = this.map.getCenter();
       this.infoitems.push({
@@ -65,87 +67,109 @@ export default {
         lng:latlng.getLng()
       });
     },
+/////////////////////////////////////////////////////////////for debug end
+
     selectmarker(item){
-      console.log('call');
-      this.setinfomodal(true);
       this.$store.commit('UPDATE_ITEM',item);
+      this.update_dealitems({kapt_code:item.kapt_code ,type:0}); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!
       this.panTo(item.lat,item.lng);
-      //
+      this.setinfomodal(true);
     },
-    startsearch(){
-      this.setsearchmodal(true);
-      //alert('검색한 내용'+this.stext);
+
+    scrollevent(){
+      if(this.map){
+        let latlng = this.map.getCenter();  
+        //좌표로 행정코드 알아내기
+        this.geocoder.coord2RegionCode(latlng.getLng(), latlng.getLat(),(result, status)=>{
+          if (status === kakao.maps.services.Status.OK) {
+            this.movemap(result[0].code);
+          }
+        });
+        this.testmsg = '변경된 지도 중심좌표는 ' + latlng.getLat() + ' 이고, ';
+        this.testmsg += '경도는 ' + latlng.getLng() + ' 입니다';
+      }
     },
-    async initMap() {
+
+    initMap() {
       if(!this.map){
         let container = document.getElementById('map');
         let options = { 
-          center: new kakao.maps.LatLng(33.450701, 126.570667),
+          center: new kakao.maps.LatLng(35.197636928054486, 126.81424906768534),
           level: 3
         };
         this.map = new kakao.maps.Map(container, options);
+        kakao.maps.event.addListener(this.map, 'dragend', this.scrollevent);
       }
       if(!this.geocode){
         this.geocoder = new kakao.maps.services.Geocoder();
       }
+
       this.setOverlays(null);
       this.overlays=[];
-      //this.setMarkers(null);
-      //this.markers=[];
-      
       if(this.infoitems){
         this.infoitems.map(item=>{
-          let position=null;
-          console.log()
           if(item.lat==null){
-            let promise = new Promise(()=>{this.geocoder.addressSearch(item.road_name, (result,status)=>{
+            this.geocoder.addressSearch(item.road_name, (result,status)=>{
               if(status===kakao.maps.services.Status.OK){
-                position= new kakao.maps.LatLng(result[0].y,result[0].x);
-                item.lat = position.getLat();
-                item.lng = position.getLng();
-                this.createOverlays(position,item);
-                //item을 업데이트
+                item.lat = result[0].y;
+                item.lng = result[0].x;
+                this.createOverlays(item);
+                console.log('update to server');
+                this.update_itemlatlng(item);//item을 서버에 업데이트
               }else{
-                position= new kakao.maps.LatLng(33.450701, 126.570667);
-                item.lat = position.getLat();
-                item.lng = position.getLng();
-                this.createOverlays(position,item);
+                item.lat = 33.450701;
+                item.lng = 126.570667;
+                this.createOverlays(item);
               }
-            });});
-            promise.then(this.selectmarker(this.infoitems[0]));
+            });
           }else{
-            position = new kakao.maps.LatLng(item.lat,item.lng);
-            this.createOverlays(position,item);
+            this.createOverlays(item);
           }
         });
-        //this.selectmarker(this.infoitems[0]);
       }
+      this.setinfomodal(false);
+      
+      if(this.movecenter){
+        console.log("move");
+        if(this.infoitems&&this.infoitems[0]){
+          setTimeout(this.panTo(this.infoitems[0].lat,this.infoitems[0].lng,2),100);
+        }else{
+          console.log(this.stext);
+          if(this.stext){
+            this.geocoder.addressSearch(this.stext,(result,status)=>{
+              if(status===kakao.maps.services.Status.OK){
+                this.panTo(result[0].y,result[0].x,2);
+              }
+            });
+          }
+        }
+        this.update_movecenter(false);
+      }
+
+
     },
-    createOverlays(position,item){
+    createOverlays(item){
+      let position = new kakao.maps.LatLng(item.lat,item.lng);
       let content = document.createElement('div');
       content.className = 'overlay';
       content.innerHTML = item.kapt_name;
-      //position = new kakao.maps.LatLng(item.lat, item.lng);
       let overlay = new kakao.maps.CustomOverlay({
         content,
         position
       });
-      //let marker = new kakao.maps.Marker({ position,clickable: true });
-      // kakao.maps.event.addListener(overlay, 'click', ()=> {
-      //   this.selectmarker(item);
-      // });
-      // this.markers.push(marker);
-      // marker.setMap(this.map);
-      content.addEventListener('mouseup',()=>{
+      content.addEventListener('click',()=>{
         this.selectmarker(item);
       })
       this.overlays.push(overlay);
       overlay.setMap(this.map);
     },
-    panTo(lat,lng) {
+    panTo(lat,lng,level) {
       let moveLatLon = new kakao.maps.LatLng(lat, lng);
-      this.map.panTo(moveLatLon);            
-    },   
+      this.map.panTo(moveLatLon);
+      setTimeout(()=>{
+          this.map.setLevel(level,{animation:true})
+        },200); 
+    },
     setOverlays(map) {
       this.overlays.map(overlay=>{overlay.setMap(map);});
     },

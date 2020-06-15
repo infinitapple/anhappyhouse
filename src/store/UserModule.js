@@ -4,7 +4,12 @@ const state = {
     login:false,
     userid:'',
     key:'',
-    userinfo:{}
+    userinfo:{
+        user_id:'',
+        user_name:'',
+        email:'',
+        address:''
+    }
 }
 const getters = {
     'login': state => state.login,
