@@ -69,7 +69,7 @@ export default {
             //로그인 모달 띄우기
         },
         logout(){
-            this.$store.dispatch('logout');
+            this.$store.dispatch('action_logout');
             alert("로그아웃");
             this.$router.push('/');
             //로그아웃

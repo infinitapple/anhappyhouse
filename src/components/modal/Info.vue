@@ -77,4 +77,51 @@ export default {
 .modal__dialog__push{
     margin-left:200px;
 }
+
+.modal-overlay {
+ position: absolute;
+ top: 0;
+ left: 0;
+ right: 0;
+ bottom: 0;
+ z-index: 98;
+ background-color: rgba(0, 0, 0, 0.3);
+}
+
+.modal {
+ position: fixed;
+ top: 50%;
+ left: 50%;
+ transform: translate(-50%, -50%);
+ z-index: 99;
+ 
+ width: 100%;
+ max-width: 400px;
+ background-color: #FFF;
+ border-radius: 16px;
+ 
+ padding: 25px;
+ 
+}
+
+.fade-enter-active,
+.fade-leave-active {
+ transition: opacity .1s;
+}
+
+.fade-enter,
+.fade-leave-to {
+ opacity: 0;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+ transition: transform .1s;
+}
+
+.slide-enter,
+.slide-leave-to {
+ transform: translateY(-50%) translateX(100vw);
+}
+
 </style>

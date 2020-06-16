@@ -35,18 +35,22 @@ const mutations = {
 
 const actions = {
     async action_login({commit}, id,pwd) {
-        return await http
-            .post('/login',{id,pwd})
-            .then(({ data }) => {
-                commit('UPDATE_LOGIN', true);
-                commit('UPDATE_USERID', id);
-                commit('UPDATE_KEY', data);
-                return true;
-            })
-            .catch(() => {
-                commit('UPDATE_LOGIN', false);
-                return false;
-            });
+        commit('UPDATE_LOGIN', true);
+        commit('UPDATE_USERID', id);
+        commit('UPDATE_KEY', pwd);
+        return new Promise((resolve)=>{resolve()});
+        // return await http
+        //     .post('/login',{id,pwd})
+        //     .then(({ data }) => {
+        //         commit('UPDATE_LOGIN', true);
+        //         commit('UPDATE_USERID', id);
+        //         commit('UPDATE_KEY', data);
+        //         return true;
+        //     })
+        //     .catch(() => {
+        //         commit('UPDATE_LOGIN', false);
+        //         return false;
+        //     });
     },
     action_logout({commit}) {
         commit('UPDATE_LOGIN', false);
