@@ -2,7 +2,7 @@ const state = {
     loginmodal:false,
     loginmsg:'',
     infomodal:false,
-    searchmodal:true,
+    searchmodal:false,
     interestmodal:false,
     selectmodal:false,
 }

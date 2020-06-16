@@ -34,30 +34,34 @@ const mutations = {
 }
 
 const actions = {
-    action_login({commit}, id,pwd) {
-        http
+    async action_login({commit}, id,pwd) {
+        return await http
             .post('/login',{id,pwd})
             .then(({ data }) => {
                 commit('UPDATE_LOGIN', true);
                 commit('UPDATE_USERID', id);
                 commit('UPDATE_KEY', data);
+                return true;
             })
             .catch(() => {
                 commit('UPDATE_LOGIN', false);
+                return false;
             });
     },
     action_logout({commit}) {
         commit('UPDATE_LOGIN', false);
         commit('UPDATE_KEY', '');
     },
-    action_getuserinfo({getters,commit}) {
-        http
+    async action_getuserinfo({getters,commit}) {
+        return await http
             .get('/user/getuserinfo/'+getters.userid)
             .then(({ data }) => {
                 commit('UPDATE_USERINFO', data);
+                return true;
             })
             .catch(() => {
                 commit('UPDATE_LOGIN', false);
+                return false;
             });
     },
     action_changepwd({commit},id,pwd) {
@@ -87,6 +91,9 @@ const actions = {
             .catch(() => {
                 commit('UPDATE_LOGIN', false);
             });
+    },
+    async action_signup(context,uerdata) {
+        return http.post('/user/signup',uerdata);
     },
 }
 

@@ -94,6 +94,16 @@ const actions = {
     update_stype({commit},stype) {
         commit('UPDATE_STYPE', stype);
     },
+    update_pagemove({commit}){
+        commit('UPDATE_GUGUN', []);
+        commit('UPDATE_DONG', []);
+        commit('UPDATE_BJD_CODE', '');
+        commit('UPDATE_STEXT', '');
+        commit('UPDATE_INFOITEMS', []);
+        commit('UPDATE_DEALITEMS', []);
+        commit('UPDATE_ITEM', {});
+        
+    },
     update_sido({state,commit}) {
         if(state.sido.length==0){
             //{sido_code, sido_name}
@@ -104,8 +114,8 @@ const actions = {
                     commit('UPDATE_GUGUN', []);
                     commit('UPDATE_DONG', []);
                 })
-                .catch(() => {
-                    alert('에러가 발생했습니다.');
+                .catch((err) => {
+                    console.log(err);
                 });
         }
     },
@@ -129,37 +139,41 @@ const actions = {
     update_bjd_code({commit}, bjd_code) {
         commit('UPDATE_BJD_CODE', bjd_code);
     },
-    update_infoitems({state,commit},option) {
+    async update_infoitems({state,commit}) {
         //option == aptinfo, houseinfo
-        http
-            .get('/subnav/'+option+'/'+state.bjd_code)
+        return await http
+            .get('/subnav/'+state.stype+'/'+state.bjd_code)
             .then(({data}) => {
                 commit('UPDATE_INFOITEMS', data);
             })
-            .catch(() => {
-                alert('에러가 발생했습니다.');
+            .catch((err) => {
+                console.log(err);
             });
     },
-    update_infoitemsfromtext({state,commit}) {
+    async update_infoitemsfromtext({state,commit}) {
         //option == aptinfo, houseinfo
-        http
+        return await http
             .post('/search/'+state.stype,state.stext,{headers:{'Content-type': 'html/text'}})
             .then(({ data }) => {
                 commit('UPDATE_INFOITEMS', data);
             })
-            .catch(() => {
-                alert('에러가 발생했습니다.');
+            .catch((err) => {
+                console.log(err);
             });
     },
-    update_dealitems({commit},{kapt_code ,type}) {
-        http
-            .get('/housedeal?kapt_code='+kapt_code+'&type='+type)
-            .then(({ data }) => {
-                commit('UPDATE_DEALITEMS', data);
-            })
-            .catch(() => {
-                alert('에러가 발생했습니다.');
-            });
+    async update_dealitems({commit},kapt_code) {
+        let newdat=[];
+        for(let type=0;type<2;type++){
+            await http
+                .get('/housedeal?kapt_code='+kapt_code+'&type='+type)
+                .then(({ data }) => {
+                    newdat[type]=data;
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        }
+        commit('UPDATE_DEALITEMS',newdat);
     },
     update_item({commit}, payload) {
         http

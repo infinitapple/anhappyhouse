@@ -22,18 +22,18 @@ import {mapGetters,mapMutations,mapActions} from 'vuex';
 export default {
   name:'searchaptrent',
   mounted() { window.kakao && window.kakao.maps ? this.initMap() : this.addScript();},
-  props:['searchtype'],
   data(){
     return{
       testmsg:'',
+      searchtype:'aptinfo',
       overlays:[],
       map:null,
       geocode:null,
     }
   },
   created(){
-    this.update_stype(this.searchtype);
     if(this.stext.length>0){
+      this.update_stype(this.searchtype),
       this.update_infoitemsfromtext();
     }
   },
@@ -70,9 +70,9 @@ export default {
 /////////////////////////////////////////////////////////////for debug end
 
     async selectmarker(item){
-      await this.UPDATE_ITEM(item);
-      this.panTo(item.lat,item.lng);
+      this.UPDATE_ITEM(item);
       this.update_dealitems(item.kapt_code).then(()=>{
+        this.panTo(item.lat,item.lng);
         this.setsearchmodal(true);
         this.setinfomodal(true);
       }); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!
@@ -137,8 +137,7 @@ export default {
       if(this.movecenter){
         console.log("move");
         if(this.infoitems&&this.infoitems[0]){
-          this.panTo(this.infoitems[0].lat,this.infoitems[0].lng,2)
-          //setTimeout(this.panTo(this.infoitems[0].lat,this.infoitems[0].lng,2),100);
+          setTimeout(this.panTo(this.infoitems[0].lat,this.infoitems[0].lng,2),100);
         }else{
           console.log(this.stext);
           if(this.stext){
@@ -171,8 +170,10 @@ export default {
     },
     panTo(lat,lng,level) {
       let moveLatLon = new kakao.maps.LatLng(lat, lng);
-      this.map.setLevel(level,{animation:true})
       this.map.panTo(moveLatLon);
+      setTimeout(()=>{
+          this.map.setLevel(level,{animation:true})
+        },200); 
     },
     setOverlays(map) {
       this.overlays.map(overlay=>{overlay.setMap(map);});

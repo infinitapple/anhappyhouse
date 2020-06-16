@@ -1,6 +1,6 @@
 <template>
   <div>
-    apt page {{testmsg}}
+    이전버전 테스트 {{testmsg}}
     <button @click="testadd">마커테스트</button>
     <div id="map"></div>
     <searchmodal>
@@ -182,7 +182,6 @@ export default {
   position: fixed !important;
   top: 0; right: 0; bottom: 0; left: 0;
   margin-top: 110px;
-  margin-left: 200px;
   z-index: 0;
 }
 .overlay {

@@ -1,5 +1,5 @@
 <template>
-  <div class="modal__dialog" v-if="getinfomodal">
+  <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
     <header class="modal__header">
         <span>{{item.name}}</span>
         <button @click="close">Close</button>
@@ -7,12 +7,8 @@
     <div class="modal__body">
         해당 아파트에 대한 실거래가, 그래프 등의 정보나 보여집니다.
         <div v-html="item"></div> <br>
-        
-        <div v-if="dealitems&&dealitems.length">
-            <div v-html="dealitems"></div>
-        </div>
-        <div v-else>
-            거래내역이 없습니다.
+        <div v-for="(dealitem,idx) in dealitems" :key="idx">
+            {{dealitem}}
         </div>
     </div>
   </div>
@@ -23,12 +19,19 @@ import {mapGetters} from 'vuex';
 
 export default {
     computed:{
-        ...mapGetters(['getinfomodal','dealitems','item'])
+        ...mapGetters(['getsearchmodal','dealitems','getinfomodal','item'])
     },
     data(){
         return{
             id:'',
             pwd:''
+        }
+    },
+    watch:{
+        dealitems:(newVal, oldVal)=>{
+            console.log(newVal);
+            console.log(oldVal);
+            //console.log(this.dealitems);
         }
     },
     methods:{
@@ -49,7 +52,7 @@ export default {
 <style scoped>
 .modal__dialog{
     top: 0; right: 0; bottom: 0; left: 0;
-    margin: 110px 0px 0px 200px;
+    margin: 110px 0px 0px 0px;
     width: 200px;
     background: #fff;
     border: 1px solid #888;
@@ -70,5 +73,8 @@ export default {
 }
 .modal__msg{
     color:red;
+}
+.modal__dialog__push{
+    margin-left:200px;
 }
 </style>
