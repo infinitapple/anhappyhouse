@@ -1,26 +1,29 @@
 <template>
-  <div class="modal__window" v-if="getloginmodal" @click.self="handleWrapperClick">
-      <div class="modal__dialog">
-          <header class="modal__header">
-              <span>{{title}}</span>
-          </header>
-          <div class="modal__body">
-            <span class="modal__msg"><strong>{{getloginmsg}}</strong></span>
-            <div class="form-group">
-                <label for="id">아이디</label>
-                <input type="text" v-model="id" class="form-control" id="id" ref='id'  placeholder="ID">
+    <div class="modal__window" v-if="getloginmodal" @click.self="handleWrapperClick">
+        
+        <transition name="slide" appear>
+            <div class="modal__dialog">
+                <header class="modal__header">
+                    <span>로그인</span>
+                </header>
+                <div class="modal__body">
+                    <span class="modal__msg"><strong>{{getloginmsg}}</strong></span>
+                    <div class="form-group">
+                        <label for="id">아이디</label>
+                        <input type="text" v-model="id" class="form-control" id="id" ref='id'  placeholder="ID">
+                    </div>
+                    <div class="form-group">
+                        <label for="pwd">비밀번호</label>
+                        <input type="password" v-model="pwd" class="form-control" id="pwd" placeholder="Password" @keyup.enter="loginfunction">
+                    </div>
+                    <div class="text-right">
+                        <button class="btn btn-primary mr-3" @click="loginfunction">로그인</button>
+                        <router-link to="/signup" tag="button" class="btn btn-primary">회원가입</router-link>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label for="pwd">비밀번호</label>
-                <input type="password" v-model="pwd" class="form-control" id="pwd" placeholder="Password" @keyup.enter="loginfunction">
-            </div>
-            <div class="text-right">
-                <button class="btn btn-primary mr-3" @click="loginfunction">로그인</button>
-                <router-link to="/signup" tag="button" class="btn btn-primary">회원가입</router-link>
-            </div>
-          </div>
-      </div>
-  </div>
+        </transition>
+    </div>
 </template>
 
 <script>
@@ -65,13 +68,14 @@ export default {
   position: fixed;
   overflow: auto;
   margin: 0;
-  z-index: 3;
+  z-index: 100 !important;
 }
 .modal__dialog{
     margin: 75px auto auto auto;
     width: 600px;
     background: #fff;
-    border: 1px solid #888;
+    border: 1px solid rgb(216, 216, 216);
+    border-radius: .35rem;
 }
 .modal__header{
     font-size: 28px;
@@ -79,6 +83,7 @@ export default {
     line-height: 1.29;
     padding: 16px 16px 0 25px;
     position: relative;
+    text-align: left;
 }
 .modal__body{
     padding: 25px;
@@ -88,5 +93,15 @@ export default {
 }
 .modal__msg{
     color:red;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+ transition: transform .15s;
+}
+
+.slide-enter,
+.slide-leave-to {
+ transform: translateY(-30px);
 }
 </style>

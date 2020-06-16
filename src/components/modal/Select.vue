@@ -1,32 +1,36 @@
 <template>
   <div>
     <div class="modal__toggle">
-        <button @click="modaltoggle">시군동검색</button>
+        <button class="btn btn-secondary" @click="modaltoggle">시군동검색
+            <i class="fa fa-caret-down " aria-hidden="true"></i></button>
     </div>
-    <div class="modal__dialog" v-if="getselectmodal">
-        <table>
-            <tr>
-                <td>
-                    <select @change="selectsido" v-model="sidocode">
-                        <option value=''>시도</option>
-                        <option v-for="(sel, idx) in sido" :key="idx" :value="sel.sido_code">{{sel.sido_name}}</option>
-                    </select>
-                </td>
-                <td>
-                    <select @change="selectgugun" v-model="guguncode">
-                        <option value=''>군구</option>
-                        <option v-for="(sel, idx) in gugun" :key="idx" :value="sel.sigungu_code">{{sel.sigungu_name}}</option>
-                    </select>
-                </td>
-                <td>
-                    <select @change="selectdong(true)" v-model="dongcode">
-                        <option value=''>동</option>
-                        <option v-for="(sel, idx) in dong" :key="idx" :value="sel.bjd_code">{{sel.bjd_name}}</option>
-                    </select>
-                </td>
-            </tr>
-        </table>
-    </div>
+    
+    <transition name="slide" appear>
+        <div class="modal__dialog" v-if="getselectmodal">
+            <table>
+                <tr>
+                    <td>
+                        <select class="form-control" @change="selectsido" v-model="sidocode">
+                            <option value=''>시도</option>
+                            <option v-for="(sel, idx) in sido" :key="idx" :value="sel.sido_code">{{sel.sido_name}}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control" @change="selectgugun" v-model="guguncode">
+                            <option value=''>군구</option>
+                            <option v-for="(sel, idx) in gugun" :key="idx" :value="sel.sigungu_code">{{sel.sigungu_name}}</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control" @change="selectdong(true)" v-model="dongcode">
+                            <option value=''>동</option>
+                            <option v-for="(sel, idx) in dong" :key="idx" :value="sel.bjd_code">{{sel.bjd_name}}</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </transition>
   </div>
 </template>
 
@@ -112,16 +116,25 @@ export default {
 <style scoped>
 .modal__toggle{
   position: fixed;
-    margin-top: 75px;
+    margin-top: -50px;
     margin-left: 50%;
-    z-index: 2;
+    z-index: 5;
 }
 .modal__dialog{
   position: fixed;
-    margin-top: 100px;
+    margin-top: -10px;
     margin-left: 50%;
-    background: #fff;
-    border: 1px solid #888;
-    z-index: 2;
+    z-index: 4;
 }
+
+.slide-enter-active,
+.slide-leave-active {
+ transition: transform .15s;
+}
+
+.slide-enter,
+.slide-leave-to {
+ transform: translateY(-30px);
+}
+
 </style>

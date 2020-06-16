@@ -1,17 +1,20 @@
 <template>
-  <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
-    <header class="modal__header">
-        <span>{{item.name}}</span>
-        <button @click="close">Close</button>
-    </header>
-    <div class="modal__body">
-        해당 아파트에 대한 실거래가, 그래프 등의 정보나 보여집니다.
-        <div v-html="item"></div> <br>
-        <div v-for="(dealitem,idx) in dealitems" :key="idx">
-            {{dealitem}}
+    <transition name="slide" appear>
+    <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
+        <i class="topright fa fa-times fa-2x" @click="close" aria-hidden="true"></i>
+        <header class="modal__header">
+            <span>{{item.kapt_name}}</span>
+        </header>
+        <div class="modal__body">
+            해당 아파트에 대한 실거래가, 그래프 등의 정보나 보여집니다.
+            <div v-html="item"></div> <br>
+            <div v-for="(dealitem,idx) in dealitems" :key="idx">
+                {{dealitem}}
+            </div>
         </div>
+        
     </div>
-  </div>
+    </transition>
 </template>
 
 <script>
@@ -20,19 +23,6 @@ import {mapGetters} from 'vuex';
 export default {
     computed:{
         ...mapGetters(['getsearchmodal','dealitems','getinfomodal','item'])
-    },
-    data(){
-        return{
-            id:'',
-            pwd:''
-        }
-    },
-    watch:{
-        dealitems:(newVal, oldVal)=>{
-            console.log(newVal);
-            console.log(oldVal);
-            //console.log(this.dealitems);
-        }
     },
     methods:{
         close(){
@@ -53,9 +43,9 @@ export default {
 .modal__dialog{
     top: 0; right: 0; bottom: 0; left: 0;
     margin: 110px 0px 0px 0px;
-    width: 200px;
+    width: 300px;
     background: #fff;
-    border: 1px solid #888;
+    border: 1px solid rgb(216, 216, 216);
     position: fixed;
     overflow: auto;
     z-index: 2;
@@ -75,7 +65,14 @@ export default {
     color:red;
 }
 .modal__dialog__push{
-    margin-left:200px;
+    margin-left:250px;
+}
+
+.topright{
+    top: 10px;
+    right: 10px;
+    position: absolute;
+    z-index: 2;
 }
 
 .modal-overlay {
@@ -121,7 +118,7 @@ export default {
 
 .slide-enter,
 .slide-leave-to {
- transform: translateY(-50%) translateX(100vw);
+ transform: translateX(-200px);
 }
 
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <mainheader search="false"/>
-    <subheader :menulist="menulist" />
+    <subheader :menulist="menulist"/>
     <router-view />
   </div>
 </template>
@@ -10,7 +10,15 @@
 import mainheader from '../../layout/Header.vue';
 import subheader from '../../layout/SubHeader.vue';
 
+import {mapGetters,mapMutations} from 'vuex';
+
 export default {
+  computed:{
+    ...mapGetters(['spread']),
+  },
+  methods:{
+    ...mapMutations(['UPDATE_SPREAD']),
+  },
   data(){
     return{
       menulist:[

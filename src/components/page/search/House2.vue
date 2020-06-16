@@ -1,5 +1,7 @@
 <template>
   <div>
+    이전버전 테스트 {{testmsg}}
+    <button @click="testadd">마커테스트</button>
     <div id="map"></div>
     <searchmodal>
       <div v-for="(infoitem, idx) in infoitems" :key="idx">
@@ -12,29 +14,26 @@
 </template>
 
 <script>
-    // apt page {{testmsg}}
-    // <button @click="testadd">마커테스트</button>
-
 import searchmodal from '@/components/modal/Search.vue';
 import infomodal from '@/components/modal/Info.vue';
 import selectmodal from '@/components/modal/Select.vue';
 
 import {mapGetters,mapMutations,mapActions} from 'vuex';
 export default {
+  name:'searchaptrent',
   mounted() { window.kakao && window.kakao.maps ? this.initMap() : this.addScript();},
-  props:['searchtype'],
   data(){
     return{
       testmsg:'',
+      searchtype:'aptinfo',
       overlays:[],
       map:null,
       geocode:null,
     }
   },
   created(){
-    this.update_stype(this.searchtype);
-    console.log(this.searchtype);
     if(this.stext.length>0){
+      this.update_stype(this.searchtype),
       this.update_infoitemsfromtext();
     }
   },
@@ -44,10 +43,10 @@ export default {
       selectmodal
   },
   computed:{
-    ...mapGetters(['movecenter','infoitems','stext'])
+    ...mapGetters(['infoitems','stext'])
   },
   watch: {
-    infoitems: { 
+    infoitems: {
       handler () {
         window.kakao && window.kakao.maps ? this.initMap() : null;
       },
@@ -55,8 +54,8 @@ export default {
     },
   },
   methods : {
-    ...mapMutations(['UPDATE_ITEM','setsearchmodal','setinfomodal']),
-    ...mapActions(['update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
+    ...mapMutations(['setsearchmodal','setinfomodal']),
+    ...mapActions(['movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
 
 /////////////////////////////////////////////////////////////for debug
     testadd(){
@@ -70,13 +69,10 @@ export default {
     },
 /////////////////////////////////////////////////////////////for debug end
 
-    async selectmarker(item){
-      await this.UPDATE_ITEM(item);
+    selectmarker(item){
+      this.setinfomodal(true);
+      this.$store.commit('UPDATE_ITEM',item);
       this.panTo(item.lat,item.lng);
-      this.update_dealitems(item.kapt_code).then(()=>{
-        this.setsearchmodal(true);
-        this.setinfomodal(true);
-      }); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!
     },
 
     scrollevent(){
@@ -85,7 +81,13 @@ export default {
         //좌표로 행정코드 알아내기
         this.geocoder.coord2RegionCode(latlng.getLng(), latlng.getLat(),(result, status)=>{
           if (status === kakao.maps.services.Status.OK) {
-            this.movemap(result[0].code);
+            for(let i = 0; i < result.length; i++) {
+              // 행정동의 region_type 값은 'H' 이므로
+              if (result[i].region_type === 'B') {
+                this.movemap(result[i].code);
+                break;
+              }
+            }
           }
         });
         this.testmsg = '변경된 지도 중심좌표는 ' + latlng.getLat() + ' 이고, ';
@@ -109,51 +111,31 @@ export default {
 
       this.setOverlays(null);
       this.overlays=[];
-
       if(this.infoitems){
-        this.infoitems.map(async item=>{
+        this.infoitems.map(item=>{
           if(item.lat==null){
-            await new Promise((resolve,reject)=>{
-              this.geocoder.addressSearch(item.road_name, (result,status)=>{
-                if(status===kakao.maps.services.Status.OK){
-                  item.lat = result[0].y;
-                  item.lng = result[0].x;
-                  resolve();
-                  console.log('update to server');
-                  this.update_itemlatlng(item);//item을 서버에 업데이트
-                }else{
-                  reject();
-                }
-              });
-            }).catch(()=>{
-              item.lat = 33.450701;
-              item.lng = 126.570667;
+            this.geocoder.addressSearch(item.road_name, (result,status)=>{
+              if(status===kakao.maps.services.Status.OK){
+                item.lat = result[0].y;
+                item.lng = result[0].x;
+                this.createOverlays(item);
+                console.log('update to server');
+                this.update_itemlatlng(item);//item을 서버에 업데이트
+              }else{
+                item.lat = 33.450701;
+                item.lng = 126.570667;
+                this.createOverlays(item);
+              }
             });
+          }else{
+            this.createOverlays(item);
           }
-          this.createOverlays(item);
         });
       }
       this.setinfomodal(false);
-      
-      if(this.movecenter){
-        console.log("move");
-        if(this.infoitems&&this.infoitems[0]){
-          this.panTo(this.infoitems[0].lat,this.infoitems[0].lng,2)
-          //setTimeout(this.panTo(this.infoitems[0].lat,this.infoitems[0].lng,2),100);
-        }else{
-          console.log(this.stext);
-          if(this.stext){
-            this.geocoder.addressSearch(this.stext,(result,status)=>{
-              if(status===kakao.maps.services.Status.OK){
-                this.panTo(result[0].y,result[0].x,2);
-              }
-            });
-          }
-        }
-        this.update_movecenter(false);
+      if(this.infoitems.legnth==0){
+        this.scrollevent();
       }
-
-
     },
     createOverlays(item){
       let position = new kakao.maps.LatLng(item.lat,item.lng);
@@ -164,7 +146,7 @@ export default {
         content,
         position
       });
-      content.addEventListener('click',()=>{
+      content.addEventListener('mouseup',()=>{
         this.selectmarker(item);
       })
       this.overlays.push(overlay);
@@ -172,8 +154,10 @@ export default {
     },
     panTo(lat,lng,level) {
       let moveLatLon = new kakao.maps.LatLng(lat, lng);
-      this.map.setLevel(level,{animation:true})
       this.map.panTo(moveLatLon);
+      setTimeout(()=>{
+          this.map.setLevel(level,{animation:true})
+        },200); 
     },
     setOverlays(map) {
       this.overlays.map(overlay=>{overlay.setMap(map);});
@@ -192,13 +176,6 @@ export default {
     }
   }
 }
-
-// #map {
-//   position: fixed !important;
-//   top: 0; right: 0; bottom: 0; left: 0;
-//   margin-top: 110px;
-//   z-index: 0;
-// }
 </script>
 <style>
 #map {
