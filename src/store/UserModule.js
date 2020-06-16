@@ -39,8 +39,11 @@ const actions = {
         // commit('UPDATE_USERID', id);
         // commit('UPDATE_KEY', pwd);
         // return new Promise((resolve)=>{resolve()});
+        const username = 'anhappyhouse'
+        const password = 'happyhouse'
+        const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64')
         return await http
-            .post('/oauth/token',{username:id,password:pwd,grant_type:'password'},{Authorization :{Username: 'anhappyhouse', Password: 'happyhouse'}})
+            .post('/oauth/token',{username:id,password:pwd,grant_type:'password'},{Authorization :`Basic ${token}`})
             .then(({ data }) => {
                 commit('UPDATE_LOGIN', true);
                 commit('UPDATE_USERID', id);
