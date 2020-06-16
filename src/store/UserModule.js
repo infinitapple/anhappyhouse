@@ -40,7 +40,7 @@ const actions = {
         // commit('UPDATE_KEY', pwd);
         // return new Promise((resolve)=>{resolve()});
         return await http
-            .post('/oauth/token',{id,pwd},{Authorization :{Username: 'anhappyhouse', Password: 'happyhouse'}})
+            .post('/oauth/token',{username:id,password:pwd,grant_type:'password'},{Authorization :{Username: 'anhappyhouse', Password: 'happyhouse'}})
             .then(({ data }) => {
                 commit('UPDATE_LOGIN', true);
                 commit('UPDATE_USERID', id);
@@ -48,7 +48,8 @@ const actions = {
                 console.log(data);
                 return true;
             })
-            .catch(() => {
+            .catch((err) => {
+                console.log(err);
                 commit('UPDATE_LOGIN', false);
                 return false;
             });
