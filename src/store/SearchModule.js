@@ -1,4 +1,5 @@
 import http from '../util/http-api';
+import apicommon from '../util/http-api';
 
 const state = {
     stext:'',
@@ -191,7 +192,8 @@ const actions = {
     update_sido({state,commit}) {
         if(state.sido.length==0){
             //{sido_code, sido_name}
-            http
+            console.log(apicommon.defaults.headers);
+            apicommon
                 .get('/bjdcode/sido')
                 .then(({ data }) => {
                     commit('UPDATE_SIDO', data);
@@ -205,7 +207,7 @@ const actions = {
     },
     update_gugun({commit}, sido_code) {
         //{sigungu_code, sigungu_name}
-        http
+        apicommon
             .get('/bjdcode/sigungu/'+sido_code)
             .then(({ data }) => {
                 commit('UPDATE_GUGUN', data);
@@ -214,7 +216,7 @@ const actions = {
     },
     update_dong({commit}, sigungu_code) {
         //[{bjd_code, sido_name, sigungu_name, bjd_name},...]
-        http
+        apicommon
             .get('/bjdcode/bjd/'+sigungu_code)
             .then(({ data }) => {
                 commit('UPDATE_DONG', data);
@@ -225,7 +227,7 @@ const actions = {
     },
     async update_infoitems({state,commit}) {
         //option == aptinfo, houseinfo
-        return await http
+        return await apicommon
             .get('/subnav/'+state.stype+'/'+state.bjd_code)
             .then(({data}) => {
                 if(data=='fail')return false;
@@ -239,7 +241,7 @@ const actions = {
     },
     async update_infoitemsfromtext({state,commit}) {
         //option == aptinfo, houseinfo
-        return await http
+        return await apicommon
             .post('/search/'+state.stype,state.stext,{headers:{'Content-type': 'html/text'}})
             .then(({ data }) => {
                 if(data=='fail')return false;
@@ -254,7 +256,7 @@ const actions = {
     async update_dealitems({commit},kapt_code) {
         let newdat=[];
         for(let type=0;type<2;type++){
-            await http
+            await apicommon
                 .get('/housedeal?kapt_code='+kapt_code+'&type='+type)
                 .then(({ data }) => {
                     newdat[type]=data;
@@ -267,7 +269,7 @@ const actions = {
         return new Promise((resolve)=>{resolve()});
     },
     update_item({commit}, payload) {
-        http
+        apicommon
             .get(payload)
             .then(({ data }) => {
                 commit('UPDATE_ITEM', data);
@@ -275,7 +277,7 @@ const actions = {
     },
     update_itemlatlng(context, payload) {
         console.log(payload);
-        http.post('/public/addLatLng',payload)
+        apicommon.post('/public/addLatLng',payload)
         .then(()=>{console.log("update success")})
         .catch(()=>{console.log("update fail")});
     },

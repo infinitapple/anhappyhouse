@@ -35,6 +35,7 @@ export default {
     }
   },
   created(){
+    this.headers_reset();
     if(this.searchtype=='interest'){
       this.UPDATE_interestmode(true);
       this.update_movecenter(true);
@@ -67,7 +68,7 @@ export default {
     },
   },
   methods : {
-    ...mapMutations(['setting_apthouseinfo','UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
+    ...mapMutations(['headers_reset','setting_apthouseinfo','UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
     ...mapActions(['update_interestitems','removeinterest','update_infoitemsfrominterest','update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
 
 /////////////////////////////////////////////////////////////for debug

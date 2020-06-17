@@ -1,5 +1,6 @@
 import auth from '../util/http-auth';
 import api from '../util/http-api';
+import apicommon from '../util/http-api';
 const querystring = require('querystring');
 
 const state = {
@@ -58,10 +59,16 @@ const mutations = {
 
     UPDATE_logout(state) {
         state.login=false;
-        state.access_token='';
-        delete api.defaults.headers.get["Authorization"] ;
-        delete api.defaults.headers.post["Authorization"] ;
+        // state.access_token='';
+        // delete api.defaults.headers.get["Authorization"] ;
+        // delete api.defaults.headers.post["Authorization"] ;
+        // delete api.defaults.headers.common["Authorization"] ;
     },
+    headers_reset(){
+        // delete api.defaults.headers.get ;
+        // delete api.defaults.headers.post ;
+    },
+
 
 }
 const actions = {
@@ -173,7 +180,7 @@ const actions = {
     },
     async action_changepwdwithoutlogin({dispatch},{userId,userName,userPwd}) {
         console.log({userId,userName,userPwd});
-        return await api
+        return await apicommon
             .post('/changepwd',{userId,userName,userPwd})
             .then(({data}) => {
                 if(data=='fail')return false;
@@ -218,7 +225,7 @@ const actions = {
             });
     },
     async action_signup(context,uerdata) {
-        return await api.post('/signup',uerdata)
+        return await apicommon.post('/signup',uerdata)
         .then(({data}) => {
             if(data=='fail')return false;
             return true;
