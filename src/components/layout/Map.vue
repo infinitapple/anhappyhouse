@@ -43,6 +43,7 @@ export default {
       });
     }else{
       this.UPDATE_interestmode(false);
+      this.update_interestitems(this.$store.state.user.userid)
       this.update_stype(this.searchtype);
       if(this.stext.length>0){
         this.update_infoitemsfromtext();
@@ -67,7 +68,7 @@ export default {
   },
   methods : {
     ...mapMutations(['setting_apthouseinfo','UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
-    ...mapActions(['removeinterest','update_infoitemsfrominterest','update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
+    ...mapActions(['update_interestitems','removeinterest','update_infoitemsfrominterest','update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
 
 /////////////////////////////////////////////////////////////for debug
     testadd(){

@@ -2,7 +2,10 @@
     <transition name="slide" appear>
     <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
         <header class="modal__header">
-            <button class="backbutton" @click="addtointerest(item.kapt_code)">
+            <button class="backbutton" @click="exist"  v-if="isexist(item.kapt_code)">
+                <i class="interestex fa fa-star fa-lg" aria-hidden="true"></i>
+            </button>
+            <button class="backbutton" @click="addtointerest(item.kapt_code)" v-else>
                 <i class="interest fa fa-star fa-lg" aria-hidden="true"></i>
             </button>
             <button class="backbutton" @click="close">
@@ -70,17 +73,16 @@ import {mapGetters} from 'vuex';
 
 export default {
     computed:{
-        ...mapGetters(['aptdiver','getsearchmodal','dealitems','getinfomodal','item','apthouseinfo','dataset','apthouseinfo'])
+        ...mapGetters(['aptdiver','getsearchmodal','dealitems','getinfomodal','item','apthouseinfo','dataset','apthouseinfo','interestitems'])
     },
     created(){
-        console.log('chartlist');
-        console.log(this.dataset);
+        this.interestitemslocal=this.interestitems;
     },
-    // data(){
-    //     return{
-    //         chartData:[],
-    //     }
-    // },
+    data(){
+        return{
+            interestitemslocal:[],
+        }
+    },
     // created(){
     //     // if(this.ctx==null){
     //     //     this.ctx = this.$refs.canvas.getContext('2d');
@@ -152,25 +154,32 @@ export default {
     // },
     methods:{
         close(){
-            this.$store.commit('setinfomodal',false)
+            this.$store.commit('setinfomodal',false);
         },
         addtointerest(kapt_code){
+            if(this.isexist(kapt_code)){
+                alert('이미 등록한 즐겨찾기입니다.');
+                return;
+            }
             if(this.$store.state.user.login){
                 this.$store.dispatch('addinterest',{userId:this.$store.state.user.userid,kaptCode:kapt_code}).then((res)=>{
-                    if(res)alert('등록성공');
+                    if(res){
+                        this.interestitemslocal.push({kapt_code});
+                        alert('등록성공');
+                    }
                 });
             }else{
                 this.$store.commit('setloginmsg','로그인이 필요한 서비스입니다.');
                 this.$store.commit('setloginmodal',true);
             }
-
         },
-        infoInit(){
-            Promise.resolve().then(()=>{
-                //axios를 써서 api서버에서 아파트에 대한 정보 가져와 보여주기
-            }).catch(()=>{
-
-            });
+        isexist(kapt_code){
+            if(this.interestitemslocal.filter(item=>item.kapt_code==kapt_code).length>0){
+                return true;
+            }return false;
+        },
+        exist(){
+            alert('이미 등록한 즐겨찾기입니다.');
         }
     }
 }
@@ -239,17 +248,27 @@ export default {
     z-index: 2;
 }
 
+.interestex{
+    border: 0;
+    outline: 0;
+    text-align: center;
+    vertical-align: middle;
+    color: rgb(124, 124, 124);
+    top: 18px;
+    left: 45px;
+    position: absolute;
+    z-index: 2;
+}
 .interest{
     border: 0;
     outline: 0;
     text-align: center;
     vertical-align: middle;
-    color: rgb(194, 194, 4);
+    color: rgb(216, 216, 7);
     top: 18px;
     left: 45px;
     position: absolute;
     z-index: 2;
-
 }
 
 .modal-overlay {

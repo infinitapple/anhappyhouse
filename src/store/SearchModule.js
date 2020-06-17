@@ -15,6 +15,7 @@ const state = {
 
     infoitems: [], //for map
     dealitems: [], //for graph
+    interestitems:[],
     item: {},
     apthouseinfo: {},
     dataset: {},
@@ -34,6 +35,7 @@ const getters = {
     'updateselectbox': state => state.updateselectbox,
     'movecenter': state => state.movecenter,
     'interestmode': state => state.interestmode,
+    'interestitems': state => state.interestitems,
 
     'infoitems': state => state.infoitems,
     'dealitems': state => state.dealitems,
@@ -76,6 +78,9 @@ const mutations = {
     UPDATE_interestmode(state, data) {
         state.interestmode = data
     },
+    UPDATE_interestitems(state, data) {
+        state.interestitems = data
+    },
 
     UPDATE_INFOITEMS(state, data) {
         state.infoitems = data
@@ -109,7 +114,6 @@ const mutations = {
 
         let dataset = [];
 
-        console.log(state.dealitems);
         //dealitems에서 정보 가져옴
         for(let i=0;i<state.dealitems.length;i++){
             let now = state.dealitems[i];
@@ -123,7 +127,7 @@ const mutations = {
                 //eachdata
                 let data=[];
                 let date = now[j].deal_date+("00"+now[j].deal_day).slice(-2);
-                data[0] = moment(date,'YYYYMMDD').format('YYYY년MM월DD일');
+                data[0] = moment(date,'YYYYMMDD').format('YYYY.MM.DD');
                 if(now[j].type==0)
                     data[1] = now[j].deal_money.replace(/[^\d]+/g, '');
                 else if(now[j].type==1)
@@ -137,6 +141,9 @@ const mutations = {
                 else if(now[j].rent_money&&now[j].deal_money.length)
                     data[1] = now[j].rent_money;
                 datas.push(data);
+                // if(j>1){
+                //     datas[j-1][0]='';
+                // }
 
             }
             dataset.push(datas);
@@ -314,6 +321,20 @@ const actions = {
             });
     },
 
+    async update_interestitems({getters,commit},userId) {
+        http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        return await http
+            .get('/auth/wish/'+userId)
+            .then(({ data }) => {
+                if(data=='fail')return false;
+                commit('UPDATE_INFOITEMS', data);
+                return true;
+            })
+            .catch((err) => {
+                console.log(err);
+                return false;
+            });
+    },
 }
 
 export default {
