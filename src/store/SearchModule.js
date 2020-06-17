@@ -281,9 +281,9 @@ const actions = {
     },
 
     async addinterest({getters},{userId,kaptCode}){
-        http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        //http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await http
-            .post('/auth/wish/add',{userId,kaptCode})
+            .post('/auth/wish/add',{userId,kaptCode},{Authorization:"Bearer "+getters.access_token})
             .then(({ data })=>{
                 if(data=='fail')return false;
                 return true;
@@ -294,9 +294,9 @@ const actions = {
     },
     async removeinterest({getters},{userId,kaptCode}){
 
-        http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        //http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await http
-            .post('/auth/wish/delete',{userId,kaptCode})
+            .post('/auth/wish/delete',{userId,kaptCode},{Authorization:"Bearer "+getters.access_token})
             .then(({ data })=>{
                 if(data=='fail')return false;
                 return true;
@@ -307,9 +307,9 @@ const actions = {
     },
     
     async update_infoitemsfrominterest({getters,commit},userId) {
-        http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        //http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
         return await http
-            .get('/auth/wish/'+userId)
+            .get('/auth/wish/'+userId,{Authorization:"Bearer "+getters.access_token})
             .then(({ data }) => {
                 if(data=='fail')return false;
                 commit('UPDATE_INFOITEMS', data);
@@ -322,9 +322,9 @@ const actions = {
     },
 
     async update_interestitems({getters,commit},userId) {
-        http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        //http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
         return await http
-            .get('/auth/wish/'+userId)
+            .get('/auth/wish/'+userId,{Authorization:"Bearer "+getters.access_token})
             .then(({ data }) => {
                 if(data=='fail')return false;
                 commit('UPDATE_INFOITEMS', data);

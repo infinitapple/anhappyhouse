@@ -59,8 +59,8 @@ const mutations = {
     UPDATE_logout(state) {
         state.login=false;
         state.access_token='';
-        api.defaults.headers.get['Authorization']='';
-        api.defaults.headers.post['Authorization']='';
+        //api.defaults.headers.get['Authorization']='';
+        //api.defaults.headers.post['Authorization']='';
     },
 
 }
@@ -69,7 +69,7 @@ const actions = {
         console.log('set token');
         if(state.access_token.length){
             console.log('set ok');
-            api.defaults.headers.common['Authorization']="Bearer "+state.access_token;
+            //api.defaults.headers.common['Authorization']="Bearer "+state.access_token;
         }
     },
     //에러처리
@@ -131,7 +131,6 @@ const actions = {
                 commit('UPDATE_refresh_token', data.refresh_token);
                 commit('UPDATE_expires_in', data.expires_in);
                 commit('UPDATE_scope', data.scope);
-                api.defaults.headers.common['Authorization']="Bearer "+data.access_token;
                 return true;
             })
             .catch((err) => {
@@ -142,9 +141,9 @@ const actions = {
     },
     async action_getuserinfo({getters,commit,dispatch}) {
         //http.defaults.headers.get['Access-Control-Allow-Origin']='*';
-        api.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        //api.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
         return await api
-            .get('/auth/user/'+getters.userid)
+            .get('/auth/user/'+getters.userid,{Authorization:"Bearer "+getters.access_token})
             .then(({ data }) => {
                 if(data=='fail')return false;
                 commit('UPDATE_USERINFO', data);
@@ -158,9 +157,9 @@ const actions = {
             });
     },
     async action_changepwd({getters,dispatch},{userId,userPwd}) {
-        api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        //api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await api
-            .post('/auth/user/change',{userId,userPwd})
+            .post('/auth/user/change',{userId,userPwd},{Authorization:"Bearer "+getters.access_token})
             .then(({data}) => {
                 if(data=='fail')return false;
                 else return true;
@@ -188,9 +187,9 @@ const actions = {
             });
     },
     async action_changeuserinfo({getters,commit,dispatch},userdata) {
-        api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        //api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await api
-            .post('/auth/user/modify',userdata)
+            .post('/auth/user/modify',userdata,{Authorization:"Bearer "+getters.access_token})
             .then(() => {
                 commit('UPDATE_USERINFO', userdata);
                 return true;
@@ -203,9 +202,9 @@ const actions = {
             });
     },
     async action_resign({getters,commit,dispatch},{userId,userPwd}) {
-        api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        //api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await api
-            .post('/auth/user/delete',{userId,userPwd})
+            .post('/auth/user/delete',{userId,userPwd},{Authorization:"Bearer "+getters.access_token})
             .then(({data}) => {
                 if(data=='fail')return false;
                 commit('UPDATE_logout');
