@@ -8,7 +8,7 @@
           {{infoitem.kapt_name}}
         </button>
         <div v-if="interestmode" @click="removeinterestitem(infoitem.kapt_code)">
-            <i class="fas fa-trash ml-1"></i>
+            <i class="fas fa-trash"></i>
         </div>
       </div>
     </searchmodal>
@@ -66,7 +66,7 @@ export default {
     },
   },
   methods : {
-    ...mapMutations(['UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
+    ...mapMutations(['setting_apthouseinfo','UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
     ...mapActions(['removeinterest','update_infoitemsfrominterest','update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
 
 /////////////////////////////////////////////////////////////for debug
@@ -81,15 +81,17 @@ export default {
     },
 /////////////////////////////////////////////////////////////for debug end
     removeinterestitem(kaptCode){
-      console.log(this.$store.state.user.userid);
-      console.log(kaptCode);
       this.removeinterest({userId:this.$store.state.user.userid,kaptCode});
+      this.$store.commit('UPDATE_INFOITEMS',this.infoitems.filter(item=>item.kapt_code!=kaptCode));
+
     },
 
     async selectmarker(item){
       await this.UPDATE_ITEM(item);
+        this.setinfomodal(false);
       this.panTo(item.lat,item.lng);
       this.update_dealitems(item.kapt_code).then(()=>{
+        this.setting_apthouseinfo();
         this.setsearchmodal(true);
         this.setinfomodal(true);
       }); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!

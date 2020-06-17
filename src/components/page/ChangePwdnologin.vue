@@ -23,13 +23,18 @@
             <form class="needs-validation" novalidate>
 
               <div class="form-group">
-                <label class="font-weight-bold" for="pwd">New Password</label>
-                <input type="password" class="form-control" ref="userPwd" />
+                <label for="user_pwd">아이디</label>
+                <input type="text" class="form-control" ref="userId" />
               </div>
 
               <div class="form-group">
-                <label class="font-weight-bold" for="pwd">Confirm Password</label>
-                <input type="password" class="form-control" ref="userPwdcnf" />
+                <label for="user_pwd">이름</label>
+                <input type="text" class="form-control" ref="userName" />
+              </div>
+
+              <div class="form-group">
+                <label class="font-weight-bold" for="pwd">바꿀 비밀번호</label>
+                <input type="password" class="form-control" ref="userPwd" />
               </div>
 
               <center class="mt-3">
@@ -47,7 +52,7 @@
 
 <script>
 export default {
-  name: "changepwd",
+  name: "changepwdnologin",
   data() {
     return {
       loadsuccess: false,
@@ -58,16 +63,14 @@ export default {
   },
   methods: {
     fromcheck() {
-      if(this.$refs.userPwd.value!=this.$refs.userPwdcnf.value){
-        alert('두 비밀번호가 일치하지 않습니다!');
-        return;
-      }
+
       this.changepwd();
     },
     changepwd() {
       this.$store
-        .dispatch("action_changepwd", {
-          userId: this.$store.state.user.userid,
+        .dispatch("action_changepwdwithoutlogin", {
+          userId: this.$refs.userId.value,
+          userName: this.$refs.userName.value,
           userPwd: this.$refs.userPwd.value
         })
         .then(res => {

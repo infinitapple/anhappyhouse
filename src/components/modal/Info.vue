@@ -9,11 +9,56 @@
                 <i class="topright fa fa-times fa-2x" aria-hidden="true"></i>
             </button>
         </header>
-        <div class="modal__body">
-            <div v-html="item"></div> <br>
-            <div v-for="(dealitem,idx) in dealitems" :key="idx">
-                {{dealitem}}
-            </div>
+        <div class="modal__body mt-5">
+
+            <table class="table">
+                <tbody>
+                    <tr>
+                        <td>
+                            <table class = "table table-bordered">
+                                <tr>
+                                    <td>
+                                        <h2>{{apthouseinfo.kapt_name}}</h2>
+                                        <h4>{{apthouseinfo.kapt_tel}}</h4>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table class = "table table-bordered">
+                                <tr>
+                                    <th>거래타입</th>
+                                    <td><span v-for="(types,i) in apthouseinfo.saletages" :key="i">{{types}}</span></td>
+                                </tr>
+                                <tr>
+                                    <th>건설사</th>
+                                    <td>{{apthouseinfo.kapt_acompany}}</td>
+                                </tr>
+                                <tr v-if="apthouseinfo.road_name">
+                                    <th>도로주소</th>
+                                    <td>{{apthouseinfo.road_name}}</td>
+                                </tr>
+                                <tr v-if="apthouseinfo.build_year">
+                                    <th>건축년도</th>
+                                    <td>{{apthouseinfo.build_year}}</td>
+                                </tr>
+                                <tr v-if="apthouseinfo.area">
+                                    <th>전용면적</th>
+                                    <td>{{apthouseinfo.area}}m<sup>2</sup></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr><td><h4 class="text-center">차트</h4></td></tr>
+<!--<canvas id="canvas" ref="canvas" style="display: block; width: 300px; height: 241px;" width="300" height="241" class="chartjs-render-monitor"></canvas>-->
+                    <tr v-for="(chartdata,idx) in dataset" :key="idx">
+                        <td>
+                            <div class="text-center"><strong>{{aptdiver[idx]}}</strong></div>
+                            <line-chart v-if="chartdata.length" :data="chartdata"></line-chart>
+                            <div v-else class="text-center">거래내역 없음</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
         </div>
         
     </div>
@@ -25,8 +70,86 @@ import {mapGetters} from 'vuex';
 
 export default {
     computed:{
-        ...mapGetters(['getsearchmodal','dealitems','getinfomodal','item'])
+        ...mapGetters(['aptdiver','getsearchmodal','dealitems','getinfomodal','item','apthouseinfo','dataset','apthouseinfo'])
     },
+    created(){
+        console.log('chartlist');
+        console.log(this.dataset);
+    },
+    // data(){
+    //     return{
+    //         chartData:[],
+    //     }
+    // },
+    // created(){
+    //     // if(this.ctx==null){
+    //     //     this.ctx = this.$refs.canvas.getContext('2d');
+    //     //     let color = Chart.helpers.color;
+    //     //     let datasets = [];
+    //     //     for(let i=0;i<this.dataset.length;i++){
+    //     //         let now = this.dataset[i];
+    //     //         let dataobj={};
+    //     //         let data=[];
+    //     //         dataobj.label=this.aptdiver[i];
+    //     //         dataobj.backgroundColor=color(window.chartColors.red).alpha(0.5).rgbString();
+    //     //         dataobj.borderColor=window.chartColors.red;
+    //     //         dataobj.fill = false;
+    //     //         for(let j=0;j<now.length;j++){
+    //     //             data.push({
+    //     //                 x: moment(now.x,'yyyymmdd').toDate(),
+    //     //                 y: now.y
+    //     //             });
+    //     //         }
+    //     //         dataobj.data = data;
+    //     //         datasets.push(dataobj);
+    //     //     }
+    //     //     let config = {
+    //     //         type: 'line',
+    //     //         data: {
+    //     //             datasets
+    //     //         },
+    //     //         options: {
+    //     //             responsive: true,
+    //     //             title: {
+    //     //                 display: true,
+    //     //                 text: 'Chart.js Time Point Data'
+    //     //             },
+    //     //             scales: {
+    //     //                 xAxes: [{
+    //     //                     type: 'time',
+    //     //                     display: true,
+    //     //                     scaleLabel: {
+    //     //                         display: true,
+    //     //                         labelString: 'Date'
+    //     //                     },
+    //     //                     ticks: {
+    //     //                         major: {
+    //     //                             fontStyle: 'bold',
+    //     //                             fontColor: '#FF0000'
+    //     //                         }
+    //     //                     }
+    //     //                 }],
+    //     //                 yAxes: [{
+    //     //                     display: true,
+    //     //                     scaleLabel: {
+    //     //                         display: true,
+    //     //                         labelString: 'value'
+    //     //                     }
+    //     //                 }]
+    //     //             }
+    //     //         }
+    //     //     };
+    //     //     this.chart = new Chart(this.ctx, config);
+    //     //     this.chart.update();
+    //     // }
+
+        
+
+
+    // },
+    // watch:{
+
+    // },
     methods:{
         close(){
             this.$store.commit('setinfomodal',false)
@@ -73,7 +196,7 @@ export default {
 .modal__dialog{
     top: 0; right: 0; bottom: 0; left: 0;
     margin: 110px 0px 0px 0px;
-    width: 300px;
+    width: 500px;
     background: #fff;
     border: 0;
     position: fixed;
@@ -82,6 +205,8 @@ export default {
     border-radius: .8rem;
 }
 .modal__header{
+    position: fixed;
+    width: 500px;
     height: 50px;
     background: #000000;
     border-radius: .8rem;
@@ -162,5 +287,7 @@ export default {
 .slide-leave-to {
  transform: translateX(-600px);
 }
+
+
 
 </style>

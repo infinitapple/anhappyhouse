@@ -16,6 +16,10 @@ const state = {
     infoitems: [], //for map
     dealitems: [], //for graph
     item: {},
+    apthouseinfo: {},
+    dataset: {},
+
+    aptdiver: ['매매','전세','월세','오피스텔','기타'],
 }
 
 const getters = {
@@ -34,6 +38,10 @@ const getters = {
     'infoitems': state => state.infoitems,
     'dealitems': state => state.dealitems,
     'item': state => state.item,
+    
+    'apthouseinfo': state => state.apthouseinfo,
+    'dataset': state => state.dataset,
+    'aptdiver': state => state.aptdiver,
 }
 
 const mutations = {
@@ -78,6 +86,70 @@ const mutations = {
     UPDATE_ITEM(state, data) {
         state.item = data
     },
+    UPDATE_apthouseinfo(state, data) {
+        state.apthouseinfo = data
+    },
+    UPDATE_dataset(state, data) {
+        state.dataset = data
+    },
+
+    setting_apthouseinfo(state) {
+        if(!state.item)return;
+        //item에서 정보 가져옴
+        let moment = require('moment');
+        let apthouseinfo={};
+        if(state.item.kapt_name) apthouseinfo.kapt_name = state.item.kapt_name;
+        apthouseinfo.kapt_acompany = state.item.kapt_acompany;
+        apthouseinfo.kapt_tel = state.item.kapt_tel;
+        apthouseinfo.road_name = state.item.road_name;
+
+        apthouseinfo.saletages=[];
+        if(state.item.sale_type) apthouseinfo.saletages.push(state.item.sale_type);
+        let tmp_sale_type=[];
+
+        let dataset = [];
+
+        console.log(state.dealitems);
+        //dealitems에서 정보 가져옴
+        for(let i=0;i<state.dealitems.length;i++){
+            let now = state.dealitems[i];
+            let datas = [];
+            for(let j=0;j<now.length;j++){
+                if(now[j].deal_money) tmp_sale_type[0]=true;
+                if(now[j].deposit) tmp_sale_type[1]=true;
+                if(now[j].rent_money) tmp_sale_type[2]=true;
+                apthouseinfo.area = now[j].area;
+                apthouseinfo.build_year = now[j].build_year;
+                //eachdata
+                let data=[];
+                let date = now[j].deal_date+("00"+now[j].deal_day).slice(-2);
+                data[0] = moment(date,'YYYYMMDD').format('YYYY년MM월DD일');
+                if(now[j].type==0)
+                    data[1] = now[j].deal_money.replace(/[^\d]+/g, '');
+                else if(now[j].type==1)
+                    data[1] = now[j].deposit;
+                else if(now[j].type==2)
+                    data[1] = now[j].rent_money;
+                else if(now[j].deal_money&&now[j].deal_money.length)
+                    data[1] = now[j].deal_money.replace(/[^\d]+/g, '');
+                else if(now[j].deposit&&now[j].deal_money.length)
+                    data[1] = now[j].deposit;
+                else if(now[j].rent_money&&now[j].deal_money.length)
+                    data[1] = now[j].rent_money;
+                datas.push(data);
+
+            }
+            dataset.push(datas);
+        }
+
+        for(let i=0;i<5;i++){
+            if(tmp_sale_type[i]) apthouseinfo.saletages.push(state.aptdiver[i]);
+        }
+        state.apthouseinfo = apthouseinfo;
+        //state.datasets = [[{x:,y:},{x:,y:}, ...], [{x:,y:},{x:,y:}, ...], ...]
+        state.dataset = dataset;
+    },
+    
 }
 
 const actions = {
@@ -202,8 +274,7 @@ const actions = {
     },
 
     async addinterest({getters},{userId,kaptCode}){
-        http.defaults.headers.post['Authorization']=getters.token_type+" "+getters.access_token;
-        console.log(http.defaults.headers);
+        http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await http
             .post('/auth/wish/add',{userId,kaptCode})
             .then(({ data })=>{

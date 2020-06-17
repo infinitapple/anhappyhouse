@@ -28,9 +28,9 @@ const routes = [
     component: () => import('../components/page/Signup.vue'),
   },
   {
-    path: '/findpwd',
-    name: 'findpwd',
-    component: () => import('../components/page/FindPwd.vue'),
+    path: '/changepwd',
+    name: 'changepwdnologin',
+    component: () => import('../components/page/ChangePwdnologin.vue'),
   },
   {
     path: '/user',

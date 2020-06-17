@@ -18,7 +18,8 @@
                     </div>
                     <div class="text-right">
                         <button class="btn btn-primary mr-3" @click="loginfunction">로그인</button>
-                        <router-link to="/signup" tag="button" class="btn btn-primary">회원가입</router-link>
+                        <router-link to="/signup" tag="button" class="btn btn-primary mr-3">회원가입</router-link>
+                        <router-link to="/changepwd" tag="button" class="btn btn-primary">비밀번호 찾기</router-link>
                     </div>
                 </div>
             </div>

@@ -28,13 +28,6 @@ export default {
         toggle(){
             this.$store.commit('setsearchmodal',!this.getsearchmodal);
         },
-        infoInit(){
-            Promise.resolve().then(()=>{
-                //axios를 써서 api서버에서 
-            }).catch(()=>{
-
-            });
-        }
     }
 }
 </script>

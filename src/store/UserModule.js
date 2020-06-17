@@ -59,6 +59,8 @@ const mutations = {
     UPDATE_logout(state) {
         state.login=false;
         state.access_token='';
+        api.defaults.headers.get['Authorization']='';
+        api.defaults.headers.post['Authorization']='';
     },
 
 }
@@ -71,40 +73,42 @@ const actions = {
         }
     },
     //에러처리
-    async tokenrefresh({state,commit},err){
-        if(err&&err.error&&err.error=='invalid_token'&&err.error_description
-        &&err.error_description.indexOf('expired')>-1){//에러 종류가 기간만료라면//
-            //refresh_token으로 access_token업데이트 시도
-            let qs = querystring.stringify({'username':state.userid,'refresh_token':state.refresh_token,'grant_type':'password'});
-            await auth
-            .post('/oauth/token',qs,{Authorization:'Basic YW5oYXBweWhvdXNlOmhhcHB5aG91c2U='})
-            .then(({ data }) => {
-                if(data=='fail')return false;
-                commit('UPDATE_LOGIN', true);
-                commit('UPDATE_access_token', data.access_token);
-                commit('UPDATE_token_type', data.token_type);
-                if(data.refresh_token)
-                    commit('UPDATE_refresh_token', data.refresh_token);
-                commit('UPDATE_expires_in', data.expires_in);
-                commit('UPDATE_scope', data.scope);
-                api.defaults.headers.common['Authorization']="Bearer "+data.access_token;
-                return true;
-            })
-            .catch((err) => {
-                console.log(err);
-                //.catch 업데이트 실패시 로그아웃 처리
-                commit('UPDATE_logout');
-                return false;
-            }).then((rst)=>{
-                if(rst){
-                    //.then 업데이트 성공시
-                    console.log('token refresh');
-                }
-            });
-        }else{
-            //에러 종류가 유효하지 않은 인증키라면 로그아웃
-            commit('UPDATE_logout');
-        }
+    async tokenrefresh({commit},err){
+        console.log(err);
+        commit('UPDATE_logout');
+        // if(err&&err.error&&err.error=='invalid_token'&&err.error_description
+        // &&err.error_description.indexOf('expired')>-1){//에러 종류가 기간만료라면//
+        //     //refresh_token으로 access_token업데이트 시도
+        //     let qs = querystring.stringify({'username':state.userid,'refresh_token':state.refresh_token,'grant_type':'password'});
+        //     await auth
+        //     .post('/oauth/token',qs,{Authorization:'Basic YW5oYXBweWhvdXNlOmhhcHB5aG91c2U='})
+        //     .then(({ data }) => {
+        //         if(data=='fail')return false;
+        //         commit('UPDATE_LOGIN', true);
+        //         commit('UPDATE_access_token', data.access_token);
+        //         commit('UPDATE_token_type', data.token_type);
+        //         if(data.refresh_token)
+        //             commit('UPDATE_refresh_token', data.refresh_token);
+        //         commit('UPDATE_expires_in', data.expires_in);
+        //         commit('UPDATE_scope', data.scope);
+        //         api.defaults.headers.common['Authorization']="Bearer "+data.access_token;
+        //         return true;
+        //     })
+        //     .catch((err) => {
+        //         console.log(err);
+        //         //.catch 업데이트 실패시 로그아웃 처리
+        //         commit('UPDATE_logout');
+        //         return false;
+        //     }).then((rst)=>{
+        //         if(rst){
+        //             //.then 업데이트 성공시
+        //             console.log('token refresh');
+        //         }
+        //     });
+        // }else{
+        //     //에러 종류가 유효하지 않은 인증키라면 로그아웃
+        //     commit('UPDATE_logout');
+        // }
     },
     async action_login({commit}, {id,pwd}) {
         // commit('UPDATE_LOGIN', true);
@@ -153,10 +157,25 @@ const actions = {
                 return false;
             });
     },
-    async action_changepwd({getters,dispatch},{userId,userName,userPwd}) {
+    async action_changepwd({getters,dispatch},{userId,userPwd}) {
         api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await api
-            .post('/auth/user/change',{userId,userName,userPwd})
+            .post('/auth/user/change',{userId,userPwd})
+            .then(({data}) => {
+                if(data=='fail')return false;
+                else return true;
+            })
+            .catch((err) => {
+                console.log(err);
+                dispatch('tokenrefresh',err);
+                //commit('UPDATE_logout');
+                return false;
+            });
+    },
+    async action_changepwdwithoutlogin({dispatch},{userId,userName,userPwd}) {
+        console.log({userId,userName,userPwd});
+        return await api
+            .post('/changepwd',{userId,userName,userPwd})
             .then(({data}) => {
                 if(data=='fail')return false;
                 else return true;
