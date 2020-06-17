@@ -3,10 +3,10 @@
     <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
         <header class="modal__header">
             <button class="backbutton" @click="exist"  v-if="isexist(item.kapt_code)">
-                <i class="interestex fa fa-star fa-lg" aria-hidden="true"></i>
+                <i class="interest fa fa-star fa-lg" aria-hidden="true"></i>
             </button>
             <button class="backbutton" @click="addtointerest(item.kapt_code)" v-else>
-                <i class="interest fa fa-star fa-lg" aria-hidden="true"></i>
+                <i class="interestex fa fa-star fa-lg" aria-hidden="true"></i>
             </button>
             <button class="backbutton" @click="close">
                 <i class="topright fa fa-times fa-2x" aria-hidden="true"></i>
