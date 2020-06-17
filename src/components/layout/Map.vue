@@ -84,11 +84,9 @@ export default {
     async selectmarker(item){
       await this.UPDATE_ITEM(item);
       this.panTo(item.lat,item.lng);
-      this.update_dealitems(item.kapt_code).then((rst)=>{
-        if(rst){
-          this.setsearchmodal(true);
-          this.setinfomodal(true);
-        }
+      this.update_dealitems(item.kapt_code).then(()=>{
+        this.setsearchmodal(true);
+        this.setinfomodal(true);
       }); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!
     },
 

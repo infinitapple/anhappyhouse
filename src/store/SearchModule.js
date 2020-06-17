@@ -149,10 +149,13 @@ const actions = {
         return await http
             .get('/subnav/'+state.stype+'/'+state.bjd_code)
             .then(({data}) => {
+                if(data=='fail')return false;
                 commit('UPDATE_INFOITEMS', data);
+                return true;
             })
             .catch((err) => {
                 console.log(err);
+                return false;
             });
     },
     async update_infoitemsfromtext({state,commit}) {
@@ -160,10 +163,13 @@ const actions = {
         return await http
             .post('/search/'+state.stype,state.stext,{headers:{'Content-type': 'html/text'}})
             .then(({ data }) => {
+                if(data=='fail')return false;
                 commit('UPDATE_INFOITEMS', data);
+                return true;
             })
             .catch((err) => {
                 console.log(err);
+                return false;
             });
     },
     async update_dealitems({commit},kapt_code) {
@@ -179,6 +185,7 @@ const actions = {
                 });
         }
         commit('UPDATE_DEALITEMS',newdat);
+        return new Promise((resolve)=>{resolve()});
     },
     update_item({commit}, payload) {
         http
