@@ -1,11 +1,13 @@
 <template>
-  <div>
-      interest page
-  </div>
+  <Map searchtype='interest'/>
 </template>
 
 <script>
+import Map from '@/components/layout/Map.vue';
 export default {
-    name:'searchinterest',
+  name:'searchInterest',
+  components:{
+      Map
+  }
 }
 </script>

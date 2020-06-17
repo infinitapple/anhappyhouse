@@ -1,6 +1,6 @@
 <template>
   <div>
-    <mainheader search="ture"/>
+    <mainheader search=true />
     <subheader :menulist="menulist"/>
     <router-view/>
   </div>
@@ -11,6 +11,9 @@ import mainheader from '../../layout/Header.vue';
 import subheader from '../../layout/SubHeader.vue';
 
 export default {
+  created(){
+    console.log('tst');
+  },
   data(){
     return{
       menulist:[
@@ -23,7 +26,7 @@ export default {
           link:'house'
         },
         {
-          name:'관심지역',
+          name:'즐겨찾기',
           link:'interest'
         },
       ]

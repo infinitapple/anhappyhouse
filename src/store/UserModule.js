@@ -1,21 +1,33 @@
-import http from '../util/http-auth';
+import auth from '../util/http-auth';
+import api from '../util/http-api';
+const querystring = require('querystring');
 
 const state = {
     login:false,
     userid:'',
-    key:'',
     userinfo:{
-        user_id:'',
-        user_name:'',
+        userId :'',
+        userType :'',
+        userName :'',
         email:'',
-        address:''
-    }
+        address:'',
+        joindate :''
+    },
+    access_token:'',
+    token_type:'',
+    refresh_token:'',
+    expires_in:0,
+    scope:'',
 }
 const getters = {
     'login': state => state.login,
     'userid': state => state.userid,
-    'key': state => state.key,
     'userinfo': state => state.userinfo,
+    'access_token': state => state.access_token,
+    'token_type': state => state.token_type,
+    'refresh_token': state => state.refresh_token,
+    'expires_in': state => state.expires_in,
+    'scope': state => state.scope,
 }
 
 const mutations = {
@@ -25,84 +37,145 @@ const mutations = {
     UPDATE_USERID(state, data) {
         state.userid = data
     },
-    UPDATE_KEY(state, data) {
-        state.key = data
-    },
     UPDATE_USERINFO(state, data) {
         state.userinfo = data
     },
-}
+    UPDATE_access_token(state, data) {
+        state.access_token = data
+    },
+    UPDATE_token_type(state, data) {
+        state.token_type = data
+    },
+    UPDATE_refresh_token(state, data) {
+        state.refresh_token = data
+    },
+    UPDATE_expires_in(state, data) {
+        state.expires_in = data
+    },
+    UPDATE_scope(state, data) {
+        state.scope = data
+    },
 
+    UPDATE_logout(state) {
+        state.login=false;
+        state.access_token='';
+    },
+
+}
 const actions = {
-    async action_login({commit}, id,pwd) {
+    settoken({state}){
+        console.log('set token');
+        if(state.access_token.length){
+            console.log('set ok');
+            api.defaults.headers.common['Authorization']="Bearer "+state.access_token;
+        }
+    },
+    async tokenrefresh(context,err){
+        if(err){//에러 종류가 기간만료라면//
+            //refresh_token으로 access_token업데이트 시도
+            //.then 업데이트 성공시  재시도?
+            //.catch 업데이트 실패시 로그아웃 처리
+        }//에러 종류가 유효하지 않은 인증키라면 로그아웃
+    },
+    async action_login({commit}, {id,pwd}) {
         // commit('UPDATE_LOGIN', true);
         // commit('UPDATE_USERID', id);
         // commit('UPDATE_KEY', pwd);
         // return new Promise((resolve)=>{resolve()});
-        const username = 'anhappyhouse'
-        const password = 'happyhouse'
-        const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64')
-        return await http
-            .post('/oauth/token',{username:id,password:pwd,grant_type:'password'},{Authorization :`Basic ${token}`})
+        
+        //const username = 'anhappyhouse'
+        //const password = 'happyhouse'
+        //const token = Buffer.from(`${username}:${password}`, 'utf8').toString('base64')
+        let qs = querystring.stringify({'username':id,'password':pwd,'grant_type':'password'});
+        return await auth
+            .post('/oauth/token',qs,{Authorization:'Basic YW5oYXBweWhvdXNlOmhhcHB5aG91c2U='})
             .then(({ data }) => {
+                if(data=='fail')return false;
                 commit('UPDATE_LOGIN', true);
                 commit('UPDATE_USERID', id);
-                commit('UPDATE_KEY', data);
-                console.log(data);
+                commit('UPDATE_access_token', data.access_token);
+                commit('UPDATE_token_type', data.token_type);
+                commit('UPDATE_refresh_token', data.refresh_token);
+                commit('UPDATE_expires_in', data.expires_in);
+                commit('UPDATE_scope', data.scope);
+                api.defaults.headers.common['Authorization']="Bearer "+data.access_token;
                 return true;
             })
             .catch((err) => {
                 console.log(err);
-                commit('UPDATE_LOGIN', false);
+                commit('UPDATE_logout');
                 return false;
             });
     },
-    action_logout({commit}) {
-        commit('UPDATE_LOGIN', false);
-        commit('UPDATE_KEY', '');
-    },
     async action_getuserinfo({getters,commit}) {
-        return await http
-            .get('/user/getuserinfo/'+getters.userid)
+        //http.defaults.headers.get['Access-Control-Allow-Origin']='*';
+        api.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        return await api
+            .get('/auth/user/'+getters.userid)
             .then(({ data }) => {
+                if(data=='fail')return false;
                 commit('UPDATE_USERINFO', data);
                 return true;
             })
-            .catch(() => {
-                commit('UPDATE_LOGIN', false);
+            .catch((err) => {
+                console.log(err);
+                commit('UPDATE_logout');
                 return false;
             });
     },
-    action_changepwd({commit},id,pwd) {
-        http
-            .put('/changepwd',{id,pwd})
-            .then(() => {
+    async action_changepwd({getters,commit},{userId,userName,userPwd}) {
+        api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        return await api
+            .post('/auth/user/change',{userId,userName,userPwd})
+            .then(({data}) => {
+                if(data=='fail')return false;
+                else return true;
             })
-            .catch(() => {
-                commit('UPDATE_LOGIN', false);
+            .catch((err) => {
+                console.log(err);
+                commit('UPDATE_logout');
+                return false;
             });
     },
-    action_changeuserinfo({commit},userdata) {
-        http
-            .put('/changeuserinfo',userdata)
+    async action_changeuserinfo({getters,commit},userdata) {
+        api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        return await api
+            .post('/auth/user/modify',userdata)
             .then(() => {
                 commit('UPDATE_USERINFO', userdata);
+                return true;
             })
-            .catch(() => {
-                commit('UPDATE_LOGIN', false);
+            .catch((err) => {
+                console.log(err);
+                commit('UPDATE_logout');
+                return false;
             });
     },
-    action_resign({commit},user_id,user_pwd) {
-        http
-            .delete('/resign',{user_id,user_pwd})
-            .then(() => {
+    async action_resign({getters,commit},{userId,userPwd}) {
+        api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        return await api
+            .post('/auth/user/delete',{userId,userPwd})
+            .then(({data}) => {
+                if(data=='fail')return false;
+                commit('UPDATE_logout');
+                return true;
             })
-            .catch(() => {
-                commit('UPDATE_LOGIN', false);
+            .catch((err) => {
+                console.log(err);
+                commit('UPDATE_logout');
+                return false;
             });
     },
     async action_signup(context,uerdata) {
-        return http.post('/user/signup',uerdata);
+        return await api.post('/signup',uerdata)
+        .then(({data}) => {
+            if(data=='fail')return false;
+            return true;
+        })
+        .catch((err) => {
+            console.log(err);
+            return false;
+        });
     },
 }
 

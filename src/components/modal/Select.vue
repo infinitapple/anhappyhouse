@@ -1,12 +1,12 @@
 <template>
   <div>
-    <div class="modal__toggle">
+    <div class="modal__toggle" v-if="!interestmode">
         <button class="btn btn-secondary" @click="modaltoggle">시군동검색
             <i class="fa fa-caret-down " aria-hidden="true"></i></button>
     </div>
     
     <transition name="slide" appear>
-        <div class="modal__dialog" v-if="getselectmodal">
+        <div class="modal__dialog" v-if="getselectmodal&&!interestmode">
             <table>
                 <tr>
                     <td>
@@ -40,7 +40,7 @@ import {mapGetters,mapMutations,mapActions} from 'vuex';
 export default {
     props:['title','searchtype'],
     computed:{
-        ...mapGetters(['infoitems','updateselectbox','getselectmodal','sido','gugun','dong','bjd_code'])
+        ...mapGetters(['infoitems','updateselectbox','getselectmodal','sido','gugun','dong','bjd_code','interestmode'])
     },
     data(){
         return{

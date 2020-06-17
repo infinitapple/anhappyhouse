@@ -4,6 +4,7 @@
     <searchmodal>
       <div v-for="(infoitem, idx) in infoitems" :key="idx">
         <a href="#" @click.prevent="selectmarker(infoitem)">{{infoitem.kapt_name}}</a>
+        <div v-if="interestmode" @click="removeinterestitem(infoitem.kapt_code)">삭제</div>
       </div>
     </searchmodal>
     <infomodal/>
@@ -12,8 +13,6 @@
 </template>
 
 <script>
-    // apt page {{testmsg}}
-    // <button @click="testadd">마커테스트</button>
 
 import searchmodal from '@/components/modal/Search.vue';
 import infomodal from '@/components/modal/Info.vue';
@@ -25,17 +24,24 @@ export default {
   props:['searchtype'],
   data(){
     return{
-      testmsg:'',
       overlays:[],
       map:null,
       geocode:null,
     }
   },
   created(){
-    this.update_stype(this.searchtype);
-    console.log(this.searchtype);
-    if(this.stext.length>0){
-      this.update_infoitemsfromtext();
+    if(this.searchtype=='interest'){
+      this.UPDATE_interestmode(true);
+      this.update_movecenter(true);
+      this.update_infoitemsfrominterest(this.$store.state.user.userid).then((rst)=>{
+        if(rst)this.setsearchmodal(true);
+      });
+    }else{
+      this.UPDATE_interestmode(false);
+      this.update_stype(this.searchtype);
+      if(this.stext.length>0){
+        this.update_infoitemsfromtext();
+      }
     }
   },
   components:{
@@ -44,7 +50,7 @@ export default {
       selectmodal
   },
   computed:{
-    ...mapGetters(['movecenter','infoitems','stext'])
+    ...mapGetters(['movecenter','infoitems','stext','interestmode'])
   },
   watch: {
     infoitems: { 
@@ -55,8 +61,8 @@ export default {
     },
   },
   methods : {
-    ...mapMutations(['UPDATE_ITEM','setsearchmodal','setinfomodal']),
-    ...mapActions(['update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
+    ...mapMutations(['UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
+    ...mapActions(['removeinterest','update_infoitemsfrominterest','update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
 
 /////////////////////////////////////////////////////////////for debug
     testadd(){
@@ -69,18 +75,25 @@ export default {
       });
     },
 /////////////////////////////////////////////////////////////for debug end
+    removeinterestitem(kaptCode){
+      console.log(this.$store.state.user.userid);
+      console.log(kaptCode);
+      this.removeinterest({userId:this.$store.state.user.userid,kaptCode});
+    },
 
     async selectmarker(item){
       await this.UPDATE_ITEM(item);
       this.panTo(item.lat,item.lng);
-      this.update_dealitems(item.kapt_code).then(()=>{
-        this.setsearchmodal(true);
-        this.setinfomodal(true);
+      this.update_dealitems(item.kapt_code).then((rst)=>{
+        if(rst){
+          this.setsearchmodal(true);
+          this.setinfomodal(true);
+        }
       }); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!
     },
 
     scrollevent(){
-      if(this.map){
+      if(this.map&&!this.interestmode){
         let latlng = this.map.getCenter();  
         //좌표로 행정코드 알아내기
         this.geocoder.coord2RegionCode(latlng.getLng(), latlng.getLat(),(result, status)=>{
@@ -88,8 +101,6 @@ export default {
             this.movemap(result[0].code);
           }
         });
-        this.testmsg = '변경된 지도 중심좌표는 ' + latlng.getLat() + ' 이고, ';
-        this.testmsg += '경도는 ' + latlng.getLng() + ' 입니다';
       }
     },
 

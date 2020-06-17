@@ -1,7 +1,12 @@
 <template>
     <transition name="slide" appear>
     <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
-        <i class="topright fa fa-times fa-2x" @click="close" aria-hidden="true"></i>
+        <button class="topright" @click="close">
+            <i class="topright fa fa-times fa-2x" aria-hidden="true"></i>
+        </button>
+        <button class="interest" @click="addtointerest(item.kapt_code)">
+            <i class="interest fa fa-star fa-lg" aria-hidden="true"></i>
+        </button>
         <header class="modal__header">
             <span>{{item.kapt_name}}</span>
         </header>
@@ -27,6 +32,12 @@ export default {
     methods:{
         close(){
             this.$store.commit('setinfomodal',false)
+        },
+        addtointerest(kapt_code){
+            this.$store.dispatch('addinterest',{userId:this.$store.state.user.userid,kaptCode:kapt_code}).then((res)=>{
+                if(res)alert('등록성공');
+            });
+
         },
         infoInit(){
             Promise.resolve().then(()=>{
@@ -69,9 +80,24 @@ export default {
 }
 
 .topright{
-    top: 10px;
-    right: 10px;
+    background-color: transparent;
+    border: 0;
+    outline: 0;
+    top: 0px;
+    right: 5px;
     position: absolute;
+    z-index: 2;
+}
+
+.interest{
+    top: 4px;
+    right: 18px;
+    position: absolute;
+    color: rgb(155, 155, 0);
+    border: 0;
+    text-align: center;
+    vertical-align: middle;
+    outline: 0;
     z-index: 2;
 }
 

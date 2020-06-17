@@ -11,6 +11,7 @@ const state = {
     bjd_code:'',
     updateselectbox:false,
     movecenter:false,
+    interestmode:false,
 
     infoitems: [], //for map
     dealitems: [], //for graph
@@ -28,6 +29,7 @@ const getters = {
     'bjd_code': state => state.bjd_code,
     'updateselectbox': state => state.updateselectbox,
     'movecenter': state => state.movecenter,
+    'interestmode': state => state.interestmode,
 
     'infoitems': state => state.infoitems,
     'dealitems': state => state.dealitems,
@@ -62,6 +64,9 @@ const mutations = {
     },
     UPDATE_MOVE(state, data) {
         state.movecenter = data
+    },
+    UPDATE_interestmode(state, data) {
+        state.interestmode = data
     },
 
     UPDATE_INFOITEMS(state, data) {
@@ -187,6 +192,48 @@ const actions = {
         http.post('/public/addLatLng',payload)
         .then(()=>{console.log("update success")})
         .catch(()=>{console.log("update fail")});
+    },
+
+    async addinterest({getters},{userId,kaptCode}){
+        http.defaults.headers.post['Authorization']=getters.token_type+" "+getters.access_token;
+        console.log(http.defaults.headers);
+        return await http
+            .post('/auth/wish/add',{userId,kaptCode})
+            .then(({ data })=>{
+                if(data=='fail')return false;
+                return true;
+            }).catch((err)=>{
+                console.log(err);
+                return false;
+            });
+    },
+    async removeinterest({getters},{userId,kaptCode}){
+
+        http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        return await http
+            .post('/auth/wish/delete',{userId,kaptCode})
+            .then(({ data })=>{
+                if(data=='fail')return false;
+                return true;
+            }).catch((err)=>{
+                console.log(err);
+                return false;
+            });
+    },
+    
+    async update_infoitemsfrominterest({getters,commit},userId) {
+        http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        return await http
+            .get('/auth/wish/'+userId)
+            .then(({ data }) => {
+                if(data=='fail')return false;
+                commit('UPDATE_INFOITEMS', data);
+                return true;
+            })
+            .catch((err) => {
+                console.log(err);
+                return false;
+            });
     },
 
 }

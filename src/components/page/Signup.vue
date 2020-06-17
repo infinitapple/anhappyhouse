@@ -2,19 +2,17 @@
   <div class="container">
     <router-link to="/">Home</router-link>
     signup page
-    <v-form>
-      
       <div class="form-group row">
         <label for="user_id">아이디</label>
-        <input type="text" class="form-control" id="user_id" v-model="user_id"/>
+        <input type="text" class="form-control" id="user_id" v-model="userId"/>
       </div>
       <div class="form-group row">
         <label for="user_pwd">비밀번호</label>
-        <input type="password" class="form-control" id="user_pwd" v-model="user_pwd"/>
+        <input type="password" class="form-control" id="user_pwd" v-model="userPwd"/>
       </div>
       <div class="form-group row">
         <label for="user_name">이름</label>
-        <input type="text" class="form-control" id="user_name" v-model="user_name"/>
+        <input type="text" class="form-control" id="user_name" v-model="userName"/>
       </div>
       <div class="form-group row">
         <label for="email">메일</label>
@@ -26,7 +24,6 @@
       </div>
       <button class="btn btn-primary" @click="checkform">회원가입</button>
 
-    </v-form>
   </div>
 </template>
 
@@ -36,9 +33,10 @@ export default {
     name:'signup',
     data(){
       return{
-        user_id:'',
-        user_pwd:'',
-        user_name:'',
+        userId:'',
+        userPwd:'',
+        userName:'',
+        userType:0,
         email:'',
         address:''
       }

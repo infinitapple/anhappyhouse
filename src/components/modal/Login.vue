@@ -48,7 +48,7 @@ export default {
         },
         async loginfunction (){
             //axios써서 인증서버에서 key가져오기
-            await this.action_login(this.id,this.pwd);
+            await this.action_login({id:this.id,pwd:this.pwd});
             if(this.login){
                 this.setloginmodal(false);
             }else{

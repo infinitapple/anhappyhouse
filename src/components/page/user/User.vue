@@ -1,6 +1,6 @@
 <template>
   <div>
-    <mainheader search="false"/>
+    <mainheader search=false />
     <subheader :menulist="menulist"/>
     <router-view />
   </div>
@@ -16,8 +16,11 @@ export default {
   computed:{
     ...mapGetters(['spread']),
   },
+  created(){
+      this.UPDATE_interestmode(true);
+  },
   methods:{
-    ...mapMutations(['UPDATE_SPREAD']),
+    ...mapMutations(['UPDATE_interestmode','UPDATE_SPREAD']),
   },
   data(){
     return{

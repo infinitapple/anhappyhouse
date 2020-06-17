@@ -4,6 +4,7 @@ import axios from 'axios';
 export default axios.create({
   baseURL: 'http://211.228.6.228:9999/ahh/api',
   headers: {
-    'Content-type': 'application/json',
+    'Content-type': 'application/json'
+    //'Content-type': 'application/x-www-form-urlencoded'
   },
 });

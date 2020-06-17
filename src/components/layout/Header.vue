@@ -8,7 +8,7 @@
             <div class="">AN Happy House</div>
         </router-link>
     </div>
-    <div class="col input-group half-width" v-if="search">
+    <div class="col input-group half-width" v-if="search&&!interestmode">
         <input type="text" class="form-control bg-light border-0 small" @keyup.enter="SetSearch" ref="searchtext" :value="stext" placeholder="검색어" />
         <div class="input-group-append">
             <button class="btn btn-primary" @click="SetSearch">
@@ -16,6 +16,7 @@
             </button>
         </div>
     </div>
+    <div class="col half-width" v-else></div>
 
     <div class="col-1 col-sm-2 text-white text-right">
         <div v-if="login">
@@ -70,7 +71,7 @@ export default {
         // ...mapState({
         //     searchtext: state => state.search.stext
         // }),
-        ...mapGetters(['getloginmodal','stext','login','userid','stype']),
+        ...mapGetters(['getloginmodal','stext','login','userid','stype','interestmode']),
     },
     data(){
         return{
@@ -92,7 +93,7 @@ export default {
             //로그인 모달 띄우기
         },
         logout(){
-            this.$store.dispatch('action_logout');
+            this.$store.commit('UPDATE_logout');
             this.dropdown=false;
             alert("로그아웃");
             this.$router.push('/');
