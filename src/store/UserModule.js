@@ -70,12 +70,41 @@ const actions = {
             api.defaults.headers.common['Authorization']="Bearer "+state.access_token;
         }
     },
-    async tokenrefresh(context,err){
-        if(err){//에러 종류가 기간만료라면//
+    //에러처리
+    async tokenrefresh({state,commit},err){
+        if(err&&err.error&&err.error=='invalid_token'&&err.error_description
+        &&err.error_description.indexOf('expired')>-1){//에러 종류가 기간만료라면//
             //refresh_token으로 access_token업데이트 시도
-            //.then 업데이트 성공시  재시도?
-            //.catch 업데이트 실패시 로그아웃 처리
-        }//에러 종류가 유효하지 않은 인증키라면 로그아웃
+            let qs = querystring.stringify({'username':state.userid,'refresh_token':state.refresh_token,'grant_type':'password'});
+            await auth
+            .post('/oauth/token',qs,{Authorization:'Basic YW5oYXBweWhvdXNlOmhhcHB5aG91c2U='})
+            .then(({ data }) => {
+                if(data=='fail')return false;
+                commit('UPDATE_LOGIN', true);
+                commit('UPDATE_access_token', data.access_token);
+                commit('UPDATE_token_type', data.token_type);
+                if(data.refresh_token)
+                    commit('UPDATE_refresh_token', data.refresh_token);
+                commit('UPDATE_expires_in', data.expires_in);
+                commit('UPDATE_scope', data.scope);
+                api.defaults.headers.common['Authorization']="Bearer "+data.access_token;
+                return true;
+            })
+            .catch((err) => {
+                console.log(err);
+                //.catch 업데이트 실패시 로그아웃 처리
+                commit('UPDATE_logout');
+                return false;
+            }).then((rst)=>{
+                if(rst){
+                    //.then 업데이트 성공시
+                    console.log('token refresh');
+                }
+            });
+        }else{
+            //에러 종류가 유효하지 않은 인증키라면 로그아웃
+            commit('UPDATE_logout');
+        }
     },
     async action_login({commit}, {id,pwd}) {
         // commit('UPDATE_LOGIN', true);
@@ -107,7 +136,7 @@ const actions = {
                 return false;
             });
     },
-    async action_getuserinfo({getters,commit}) {
+    async action_getuserinfo({getters,commit,dispatch}) {
         //http.defaults.headers.get['Access-Control-Allow-Origin']='*';
         api.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
         return await api
@@ -119,11 +148,12 @@ const actions = {
             })
             .catch((err) => {
                 console.log(err);
-                commit('UPDATE_logout');
+                dispatch('tokenrefresh',err);
+                //commit('UPDATE_logout');
                 return false;
             });
     },
-    async action_changepwd({getters,commit},{userId,userName,userPwd}) {
+    async action_changepwd({getters,dispatch},{userId,userName,userPwd}) {
         api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await api
             .post('/auth/user/change',{userId,userName,userPwd})
@@ -133,11 +163,12 @@ const actions = {
             })
             .catch((err) => {
                 console.log(err);
-                commit('UPDATE_logout');
+                dispatch('tokenrefresh',err);
+                //commit('UPDATE_logout');
                 return false;
             });
     },
-    async action_changeuserinfo({getters,commit},userdata) {
+    async action_changeuserinfo({getters,commit,dispatch},userdata) {
         api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await api
             .post('/auth/user/modify',userdata)
@@ -147,11 +178,12 @@ const actions = {
             })
             .catch((err) => {
                 console.log(err);
-                commit('UPDATE_logout');
+                dispatch('tokenrefresh',err);
+                //commit('UPDATE_logout');
                 return false;
             });
     },
-    async action_resign({getters,commit},{userId,userPwd}) {
+    async action_resign({getters,commit,dispatch},{userId,userPwd}) {
         api.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await api
             .post('/auth/user/delete',{userId,userPwd})
@@ -162,7 +194,8 @@ const actions = {
             })
             .catch((err) => {
                 console.log(err);
-                commit('UPDATE_logout');
+                dispatch('tokenrefresh',err);
+                //commit('UPDATE_logout');
                 return false;
             });
     },

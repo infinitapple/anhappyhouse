@@ -3,7 +3,6 @@
         <transition name="slide" appear>
                 <div class="modal__dialog" v-if="getsearchmodal">
                     <div class="modal__body">
-                        검색에 대한 아파트리스트 정보들이 보여집니다.
                         <slot></slot>
                     </div>
                     <div class="leftcaret" @click="toggle">
@@ -45,10 +44,11 @@ export default {
     top: 0; right: 0; bottom: 0; left: 0;
     margin: 110px 0px 0px 0px;
     width: 250px;
-    background: #fff;
-    border: 1px solid rgb(216, 216, 216);
+    background: #343a4062;
+    border: 1px solid #343a40;
     position: fixed;
-    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
     z-index: 3;
 }
 .modal__header{

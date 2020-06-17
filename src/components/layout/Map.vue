@@ -2,9 +2,14 @@
   <div>
     <div id="map"></div>
     <searchmodal>
-      <div v-for="(infoitem, idx) in infoitems" :key="idx">
-        <a href="#" @click.prevent="selectmarker(infoitem)">{{infoitem.kapt_name}}</a>
-        <div v-if="interestmode" @click="removeinterestitem(infoitem.kapt_code)">삭제</div>
+      <div v-for="(infoitem, idx) in infoitems" :key="idx" >
+        <button class="selectboxing" @click.prevent="selectmarker(infoitem)">
+          <i class="fas fa-building"></i>
+          {{infoitem.kapt_name}}
+        </button>
+        <div v-if="interestmode" @click="removeinterestitem(infoitem.kapt_code)">
+            <i class="fas fa-trash ml-1"></i>
+        </div>
       </div>
     </searchmodal>
     <infomodal/>
@@ -229,5 +234,15 @@ export default {
     font-size:12px;
     text-align: center;
     word-wrap: break-word;
+}
+.selectboxing{
+    border: 0;
+    text-align: center;
+    vertical-align: middle;
+    outline: 0;
+    color:white;
+    background-color: rgba(0, 0, 0, 0.9);
+    margin-bottom: 10px;
+    border-radius: .35rem;
 }
 </style>

@@ -1,17 +1,15 @@
 <template>
     <transition name="slide" appear>
     <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
-        <button class="topright" @click="close">
-            <i class="topright fa fa-times fa-2x" aria-hidden="true"></i>
-        </button>
-        <button class="interest" @click="addtointerest(item.kapt_code)">
-            <i class="interest fa fa-star fa-lg" aria-hidden="true"></i>
-        </button>
         <header class="modal__header">
-            <span>{{item.kapt_name}}</span>
+            <button class="backbutton" @click="addtointerest(item.kapt_code)">
+                <i class="interest fa fa-star fa-lg" aria-hidden="true"></i>
+            </button>
+            <button class="backbutton" @click="close">
+                <i class="topright fa fa-times fa-2x" aria-hidden="true"></i>
+            </button>
         </header>
         <div class="modal__body">
-            해당 아파트에 대한 실거래가, 그래프 등의 정보나 보여집니다.
             <div v-html="item"></div> <br>
             <div v-for="(dealitem,idx) in dealitems" :key="idx">
                 {{dealitem}}
@@ -34,9 +32,14 @@ export default {
             this.$store.commit('setinfomodal',false)
         },
         addtointerest(kapt_code){
-            this.$store.dispatch('addinterest',{userId:this.$store.state.user.userid,kaptCode:kapt_code}).then((res)=>{
-                if(res)alert('등록성공');
-            });
+            if(this.$store.state.user.login){
+                this.$store.dispatch('addinterest',{userId:this.$store.state.user.userid,kaptCode:kapt_code}).then((res)=>{
+                    if(res)alert('등록성공');
+                });
+            }else{
+                this.$store.commit('setloginmsg','로그인이 필요한 서비스입니다.');
+                this.$store.commit('setloginmodal',true);
+            }
 
         },
         infoInit(){
@@ -48,6 +51,22 @@ export default {
         }
     }
 }
+
+    // font-size: 28px;
+    // font-weight: bold;
+    // line-height: 1.29;
+    // padding: 16px 16px 0 25px;
+    // position: relative;
+    
+    // top: 4px;
+    // right: 18px;
+    // position: absolute;
+    // color: rgb(155, 155, 0);
+    // border: 0;
+    // outline: 0;
+    // text-align: center;
+    // vertical-align: middle;
+    // z-index: 2;
 </script>
 
 <style scoped>
@@ -56,17 +75,16 @@ export default {
     margin: 110px 0px 0px 0px;
     width: 300px;
     background: #fff;
-    border: 1px solid rgb(216, 216, 216);
+    border: 0;
     position: fixed;
     overflow: auto;
     z-index: 2;
+    border-radius: .8rem;
 }
 .modal__header{
-    font-size: 28px;
-    font-weight: bold;
-    line-height: 1.29;
-    padding: 16px 16px 0 25px;
-    position: relative;
+    height: 50px;
+    background: #000000;
+    border-radius: .8rem;
 }
 .modal__body{
     padding: 10px;
@@ -78,27 +96,35 @@ export default {
 .modal__dialog__push{
     margin-left:250px;
 }
-
-.topright{
+.backbutton{
     background-color: transparent;
     border: 0;
     outline: 0;
-    top: 0px;
-    right: 5px;
+
+}
+.topright{
+    border: 0;
+    outline: 0;
+    text-align: center;
+    vertical-align: middle;
+    color:white;
+    top: 10px;
+    left: 10px;
     position: absolute;
     z-index: 2;
 }
 
 .interest{
-    top: 4px;
-    right: 18px;
-    position: absolute;
-    color: rgb(155, 155, 0);
     border: 0;
+    outline: 0;
     text-align: center;
     vertical-align: middle;
-    outline: 0;
+    color: rgb(194, 194, 4);
+    top: 18px;
+    left: 45px;
+    position: absolute;
     z-index: 2;
+
 }
 
 .modal-overlay {
@@ -127,24 +153,14 @@ export default {
  
 }
 
-.fade-enter-active,
-.fade-leave-active {
- transition: opacity .1s;
-}
-
-.fade-enter,
-.fade-leave-to {
- opacity: 0;
-}
-
 .slide-enter-active,
 .slide-leave-active {
- transition: transform .1s;
+ transition: transform .2s;
 }
 
 .slide-enter,
 .slide-leave-to {
- transform: translateX(-200px);
+ transform: translateX(-600px);
 }
 
 </style>

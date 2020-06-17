@@ -10,11 +10,11 @@
                     <span class="modal__msg"><strong>{{getloginmsg}}</strong></span>
                     <div class="form-group">
                         <label for="id">아이디</label>
-                        <input type="text" v-model="id" class="form-control" id="id" ref='id'  placeholder="ID">
-                    </div>
+                        <input type="text" v-model="id" class="form-control ml-1" id="id" ref='id'  placeholder="ID">
+                    </div>  
                     <div class="form-group">
                         <label for="pwd">비밀번호</label>
-                        <input type="password" v-model="pwd" class="form-control" id="pwd" placeholder="Password" @keyup.enter="loginfunction">
+                        <input type="password" v-model="pwd" class="form-control ml-1" id="pwd" placeholder="Password" @keyup.enter="loginfunction">
                     </div>
                     <div class="text-right">
                         <button class="btn btn-primary mr-3" @click="loginfunction">로그인</button>

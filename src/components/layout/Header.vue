@@ -27,7 +27,7 @@
         </div>
         <div v-else>
             <button class="iconbutton text-light" @click="loginmodal">
-                <i class="fas fa-user-circle fa-2x"></i>
+                <i class="fas fa-lock fa-2x"></i>
             </button>
         </div>
     </div>
@@ -95,7 +95,6 @@ export default {
         logout(){
             this.$store.commit('UPDATE_logout');
             this.dropdown=false;
-            alert("로그아웃");
             this.$router.push('/');
             //로그아웃
         }
