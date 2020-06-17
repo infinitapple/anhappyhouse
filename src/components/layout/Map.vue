@@ -220,15 +220,14 @@ export default {
     position:absolute;
     left: -50px;
     top: -55px;
-    width:100px;
-    height: 50px;
-    background-color: rgba(255, 255, 255, 0.9);
+    background-color: rgba(0, 0, 0, 0.9);
+    color: white;
+    text-overflow: clip;
     border:1px solid #ccc;
     border-radius: 5px;
     padding:5px;
     font-size:12px;
     text-align: center;
-    white-space: pre;
     word-wrap: break-word;
 }
 </style>
