@@ -2,7 +2,7 @@
     <transition name="slide" appear>
     <div class="modal__dialog" v-if="getinfomodal" :class="{modal__dialog__push:getsearchmodal}">
         <header class="modal__header">
-            <button class="backbutton" @click="exist"  v-if="isexist(item.kapt_code)">
+            <button class="backbutton" @click="addtointerest(item.kapt_code)"  v-if="isexist(item.kapt_code)">
                 <i class="interest fa fa-star fa-lg" aria-hidden="true"></i>
             </button>
             <button class="backbutton" @click="addtointerest(item.kapt_code)" v-else>
@@ -13,7 +13,6 @@
             </button>
         </header>
         <div class="modal__body mt-5">
-
             <table class="table">
                 <tbody>
                     <tr>
@@ -21,42 +20,66 @@
                             <table class = "table table-bordered">
                                 <tr>
                                     <td>
-                                        <h2>{{apthouseinfo.kapt_name}}</h2>
-                                        <h4>{{apthouseinfo.kapt_tel}}</h4>
+                                        <h2>{{item.kapt_name}}</h2>
+                                        <h4>{{item.kapt_tel}}</h4>
                                     </td>
                                 </tr>
                             </table>
                             <table class = "table table-bordered">
                                 <tr>
                                     <th>거래타입</th>
-                                    <td><span v-for="(types,i) in apthouseinfo.saletages" :key="i">{{types}}</span></td>
+                                    <td>{{item.sale_type}}</td>
                                 </tr>
                                 <tr>
                                     <th>건설사</th>
-                                    <td>{{apthouseinfo.kapt_acompany}}</td>
+                                    <td>{{item.kapt_acompany}}</td>
                                 </tr>
-                                <tr v-if="apthouseinfo.road_name">
+                                <tr v-if="item.road_name">
                                     <th>도로주소</th>
-                                    <td>{{apthouseinfo.road_name}}</td>
+                                    <td>{{item.road_name}}</td>
                                 </tr>
-                                <tr v-if="apthouseinfo.build_year">
+                                <!--<tr v-if="apthouseinfo.build_year">
                                     <th>건축년도</th>
                                     <td>{{apthouseinfo.build_year}}</td>
                                 </tr>
                                 <tr v-if="apthouseinfo.area">
                                     <th>전용면적</th>
                                     <td>{{apthouseinfo.area}}m<sup>2</sup></td>
-                                </tr>
+                                </tr>-->
                             </table>
                         </td>
                     </tr>
                     <tr><td><h4 class="text-center">차트</h4></td></tr>
 <!--<canvas id="canvas" ref="canvas" style="display: block; width: 300px; height: 241px;" width="300" height="241" class="chartjs-render-monitor"></canvas>-->
-                    <tr v-for="(chartdata,idx) in dataset" :key="idx">
+                    <tr>
                         <td>
-                            <div class="text-center"><strong>{{aptdiver[idx]}}</strong></div>
-                            <line-chart v-if="chartdata.length" :data="chartdata"></line-chart>
-                            <div v-else class="text-center">거래내역 없음</div>
+                            <div class="text-center mt-3">
+                                <strong>{{aptdiver[0]}}</strong>
+                                <span v-if="dataset0.length">(평균:{{avgmoney0}}만원)</span>
+                            </div>
+                            <line-chart v-if="dataset0.length" :data="dataset0"></line-chart>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="text-center mt-3">
+                                <strong>{{aptdiver[1]}}</strong>
+                                <span v-if="dataset1.length">(평균:{{avgmoney1}}만원)</span>
+                            </div>
+                            <div v-if="dataset1.length">
+                                <line-chart :data="dataset1"></line-chart>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="text-center mt-3">
+                                <strong>{{aptdiver[2]}}</strong>
+                                <span v-if="dataset2.length">(평균:{{avgmoney2}}만원)</span>
+                            </div>
+                            <div v-if="dataset2.length">
+                                <line-chart :data="dataset2"></line-chart>
+                            </div>
                         </td>
                     </tr>
                 </tbody>
@@ -73,15 +96,39 @@ import {mapGetters} from 'vuex';
 
 export default {
     computed:{
-        ...mapGetters(['aptdiver','getsearchmodal','dealitems','getinfomodal','item','apthouseinfo','dataset','apthouseinfo','interestitems'])
+        ...mapGetters(['avgmoney0','avgmoney1','avgmoney2','infoitems','login','interestmode','aptdiver','getsearchmodal','getinfomodal','item','apthouseinfo','dataset0','dataset1','dataset2','apthouseinfo'])
     },
     created(){
-        this.interestitemslocal=this.interestitems;
+        if(this.login){
+            this.$store.dispatch('update_interestitems',this.$store.state.user.userid);
+        }else{
+            this.$store.state.search.interestitems=[];
+        }
     },
     data(){
         return{
-            interestitemslocal:[],
+            datalists:{list:[]},
         }
+
+    },
+    watch:{
+        dealitems:{
+            handler(){
+                console.log(this.dealitems);
+                this.datalists=this.dealitems;
+            },
+            immediate: false,
+        },
+        login: {
+            handler () {
+                if(this.login){
+                    this.$store.dispatch('update_interestitems',this.$store.state.user.userid);
+                }else{
+                    this.$store.state.search.interestitems=[];
+                }
+            },
+            immediate: false,
+        },
     },
     // created(){
     //     // if(this.ctx==null){
@@ -158,13 +205,15 @@ export default {
         },
         addtointerest(kapt_code){
             if(this.isexist(kapt_code)){
-                alert('이미 등록한 즐겨찾기입니다.');
+                if(confirm('즐겨찾기를 해제하시겠습니까?')){
+                    this.removeinterestitem(kapt_code);
+                }
                 return;
             }
             if(this.$store.state.user.login){
                 this.$store.dispatch('addinterest',{userId:this.$store.state.user.userid,kaptCode:kapt_code}).then((res)=>{
                     if(res){
-                        this.interestitemslocal.push({kapt_code});
+                        this.$store.state.search.interestitems.push({kapt_code});
                         alert('등록성공');
                     }
                 });
@@ -174,13 +223,20 @@ export default {
             }
         },
         isexist(kapt_code){
-            if(this.interestitemslocal.filter(item=>item.kapt_code==kapt_code).length>0){
+            if(this.$store.state.search.interestitems.filter(item=>item.kapt_code==kapt_code).length>0){
                 return true;
             }return false;
         },
         exist(){
             alert('이미 등록한 즐겨찾기입니다.');
-        }
+        },
+        removeinterestitem(kaptCode){
+            this.$store.dispatch('removeinterest',{userId:this.$store.state.user.userid,kaptCode});
+            if(this.interestmode){
+                this.$store.commit('UPDATE_INFOITEMS',this.infoitems.filter(item=>item.kapt_code!=kaptCode));
+            }
+            this.$store.state.search.interestitems = this.$store.state.search.interestitems.filter(item=>item.kapt_code!=kaptCode);
+        },
     }
 }
 

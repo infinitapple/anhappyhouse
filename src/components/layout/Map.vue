@@ -7,9 +7,6 @@
           <i class="fas fa-building"></i>
           {{infoitem.kapt_name}}
         </button>
-        <div v-if="interestmode" @click="removeinterestitem(infoitem.kapt_code)">
-            <i class="fas fa-trash"></i>
-        </div>
       </div>
     </searchmodal>
     <infomodal/>
@@ -35,7 +32,7 @@ export default {
     }
   },
   created(){
-    this.headers_reset();
+    this.setsearchmodal(false);
     if(this.searchtype=='interest'){
       this.UPDATE_interestmode(true);
       this.update_movecenter(true);
@@ -44,11 +41,13 @@ export default {
       });
     }else{
       this.UPDATE_interestmode(false);
-      this.update_interestitems(this.$store.state.user.userid)
       this.update_stype(this.searchtype);
       if(this.stext.length>0){
         this.update_infoitemsfromtext();
+      }else{
+        this.scrollevent();
       }
+      this.setsearchmodal(true);
     }
   },
   components:{
@@ -57,7 +56,7 @@ export default {
       selectmodal
   },
   computed:{
-    ...mapGetters(['movecenter','infoitems','stext','interestmode'])
+    ...mapGetters(['login','movecenter','infoitems','stext','interestmode'])
   },
   watch: {
     infoitems: { 
@@ -68,7 +67,7 @@ export default {
     },
   },
   methods : {
-    ...mapMutations(['headers_reset','setting_apthouseinfo','UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
+    ...mapMutations(['reset_dataset','setting_dataset','UPDATE_interestmode','UPDATE_ITEM','setsearchmodal','setinfomodal']),
     ...mapActions(['update_interestitems','removeinterest','update_infoitemsfrominterest','update_dealitems','update_movecenter','movemap','update_infoitemsfromtext','update_stype','update_itemlatlng']),
 
 /////////////////////////////////////////////////////////////for debug
@@ -87,16 +86,19 @@ export default {
       this.$store.commit('UPDATE_INFOITEMS',this.infoitems.filter(item=>item.kapt_code!=kaptCode));
 
     },
-
-    async selectmarker(item){
-      await this.UPDATE_ITEM(item);
+    selectmarker(item){
+      this.reset_dataset();
+      this.UPDATE_ITEM(item);
         this.setinfomodal(false);
       this.panTo(item.lat,item.lng);
-      this.update_dealitems(item.kapt_code).then(()=>{
-        this.setting_apthouseinfo();
-        this.setsearchmodal(true);
-        this.setinfomodal(true);
-      }); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!
+      console.log('start');
+      for(let i=0;i<3;i++){
+        this.update_dealitems({type:i,kapt_code:item.kapt_code}).then(()=>{
+            this.setting_dataset(i);
+          }); // searchtype 바꾸면서 같이 바꿀것!!!!!!!!!
+      }
+      this.setsearchmodal(true);
+      this.setinfomodal(true);
     },
 
     scrollevent(){
@@ -127,6 +129,10 @@ export default {
 
       this.setOverlays(null);
       this.overlays=[];
+
+      if(this.login){
+        this.update_interestitems(this.$store.state.user.userid);
+      }
 
       if(this.infoitems){
         this.infoitems.map(async item=>{

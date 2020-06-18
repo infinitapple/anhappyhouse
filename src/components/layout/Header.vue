@@ -79,7 +79,7 @@ export default {
         }
     },
     methods:{
-        ...mapMutations(['UPDATE_SPREAD','setsearchmodal']),
+        ...mapMutations(['UPDATE_interestitems','UPDATE_SPREAD','setsearchmodal']),
         ...mapActions(['update_movecenter','update_infoitemsfromtext','update_stext']),
         async SetSearch(){
             this.update_stext(this.$refs.searchtext.value);
@@ -95,6 +95,7 @@ export default {
         logout(){
             this.$store.commit('UPDATE_logout');
             this.dropdown=false;
+            this.UPDATE_interestitems([]);
             this.$router.push('/');
             //로그아웃
         }

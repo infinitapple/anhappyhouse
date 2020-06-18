@@ -15,11 +15,19 @@ const state = {
     interestmode:false,
 
     infoitems: [], //for map
-    dealitems: [], //for graph
+    dealitems0: [], //for graph
+    dealitems1: [], //for graph
+    dealitems2: [], //for graph
     interestitems:[],
     item: {},
     apthouseinfo: {},
-    dataset: {},
+    dataset: {list:[['t'],['e'],['s'],['t'],[]]},
+
+    dataset0:[],
+    dataset1:[],
+    dataset2:[],
+    avgmoney1:0,
+    avgmoney2:0,
 
     aptdiver: ['매매','전세','월세','오피스텔','기타'],
 }
@@ -39,12 +47,22 @@ const getters = {
     'interestitems': state => state.interestitems,
 
     'infoitems': state => state.infoitems,
-    'dealitems': state => state.dealitems,
+    'dealitems0': state => state.dealitems0,
+    'dealitems1': state => state.dealitems1,
+    'dealitems2': state => state.dealitems2,
     'item': state => state.item,
     
     'apthouseinfo': state => state.apthouseinfo,
     'dataset': state => state.dataset,
     'aptdiver': state => state.aptdiver,
+
+    'dataset0': state => state.dataset0,
+    'dataset1': state => state.dataset1,
+    'dataset2': state => state.dataset2,
+
+    'avgmoney0': state => state.avgmoney0,
+    'avgmoney1': state => state.avgmoney1,
+    'avgmoney2': state => state.avgmoney2,
 }
 
 const mutations = {
@@ -86,8 +104,14 @@ const mutations = {
     UPDATE_INFOITEMS(state, data) {
         state.infoitems = data
     },
-    UPDATE_DEALITEMS(state, data) {
-        state.dealitems = data
+    UPDATE_DEALITEMS0(state, data) {
+        state.dealitems0 = data
+    },
+    UPDATE_DEALITEMS1(state, data) {
+        state.dealitems1 = data
+    },
+    UPDATE_DEALITEMS2(state, data) {
+        state.dealitems2 = data
     },
     UPDATE_ITEM(state, data) {
         state.item = data
@@ -98,64 +122,54 @@ const mutations = {
     UPDATE_dataset(state, data) {
         state.dataset = data
     },
+    
+    reset_dataset(state){
+        state.dataset0=[];
+        state.dataset1=[];
+        state.dataset2=[];
+    },
 
-    setting_apthouseinfo(state) {
+    setting_dataset(state,i) {
         if(!state.item)return;
         //item에서 정보 가져옴
         let moment = require('moment');
-        let apthouseinfo={};
-        if(state.item.kapt_name) apthouseinfo.kapt_name = state.item.kapt_name;
-        apthouseinfo.kapt_acompany = state.item.kapt_acompany;
-        apthouseinfo.kapt_tel = state.item.kapt_tel;
-        apthouseinfo.road_name = state.item.road_name;
-
-        apthouseinfo.saletages=[];
-        if(state.item.sale_type) apthouseinfo.saletages.push(state.item.sale_type);
-        let tmp_sale_type=[];
-
-        let dataset = [];
-
-        //dealitems에서 정보 가져옴
-        for(let i=0;i<state.dealitems.length;i++){
-            let now = state.dealitems[i];
+        let now = null;
+        if(i==0){
+            now = state.dealitems0;
+        }else if(i==1){
+            now = state.dealitems1;
+        }else if(i==2){
+            now = state.dealitems2;
+        }
+        if(now&&now.length){
             let datas = [];
+            let sum=0;
             for(let j=0;j<now.length;j++){
-                if(now[j].deal_money) tmp_sale_type[0]=true;
-                if(now[j].deposit) tmp_sale_type[1]=true;
-                if(now[j].rent_money) tmp_sale_type[2]=true;
-                apthouseinfo.area = now[j].area;
-                apthouseinfo.build_year = now[j].build_year;
-                //eachdata
                 let data=[];
                 let date = now[j].deal_date+("00"+now[j].deal_day).slice(-2);
                 data[0] = moment(date,'YYYYMMDD').format('YYYY.MM.DD');
-                if(now[j].type==0)
-                    data[1] = now[j].deal_money.replace(/[^\d]+/g, '');
-                else if(now[j].type==1)
-                    data[1] = now[j].deposit;
-                else if(now[j].type==2)
-                    data[1] = now[j].rent_money;
-                else if(now[j].deal_money&&now[j].deal_money.length)
-                    data[1] = now[j].deal_money.replace(/[^\d]+/g, '');
-                else if(now[j].deposit&&now[j].deal_money.length)
-                    data[1] = now[j].deposit;
-                else if(now[j].rent_money&&now[j].deal_money.length)
-                    data[1] = now[j].rent_money;
+                if(i==0){
+                    data[1] = (now[j].deal_money.replace(/[^\d]+/g, ''))*1;
+                }else if(i==1){
+                    data[1] = (now[j].deposit.replace(/[^\d]+/g, ''))*1;
+                }else if(i==2){
+                    data[1] = (now[j].rent_money)*1;
+                }
+                sum+=data[1];
                 datas.push(data);
-                // if(j>1){
-                //     datas[j-1][0]='';
-                // }
-
             }
-            dataset.push(datas);
+            if(i==0){
+                state.dataset0 =datas;
+                state.avgmoney0 = Math.round(sum/datas.length);
+            }else if(i==1){
+                state.dataset1 =datas;
+                state.avgmoney1 = Math.round(sum/datas.length);
+            }else if(i==2){
+                state.dataset2 =datas;
+                state.avgmoney2 = Math.round(sum/datas.length);
+            }
         }
 
-        for(let i=0;i<5;i++){
-            if(tmp_sale_type[i]) apthouseinfo.saletages.push(state.aptdiver[i]);
-        }
-        state.apthouseinfo = apthouseinfo;
-        //state.datasets = [[{x:,y:},{x:,y:}, ...], [{x:,y:},{x:,y:}, ...], ...]
-        state.dataset = dataset;
     },
     
 }
@@ -185,14 +199,15 @@ const actions = {
         commit('UPDATE_BJD_CODE', '');
         commit('UPDATE_STEXT', '');
         commit('UPDATE_INFOITEMS', []);
-        commit('UPDATE_DEALITEMS', []);
+        commit('UPDATE_DEALITEMS0', []);
+        commit('UPDATE_DEALITEMS1', []);
+        commit('UPDATE_DEALITEMS2', []);
         commit('UPDATE_ITEM', {});
         
     },
     update_sido({state,commit}) {
         if(state.sido.length==0){
             //{sido_code, sido_name}
-            console.log(apicommon.defaults.headers);
             apicommon
                 .get('/bjdcode/sido')
                 .then(({ data }) => {
@@ -253,20 +268,21 @@ const actions = {
                 return false;
             });
     },
-    async update_dealitems({commit},kapt_code) {
-        let newdat=[];
-        for(let type=0;type<2;type++){
-            await apicommon
-                .get('/housedeal?kapt_code='+kapt_code+'&type='+type)
-                .then(({ data }) => {
-                    newdat[type]=data;
-                })
-                .catch((err) => {
-                    console.log(err);
-                });
-        }
-        commit('UPDATE_DEALITEMS',newdat);
-        return new Promise((resolve)=>{resolve()});
+    async update_dealitems({commit},{type,kapt_code}) {
+        return await apicommon
+           .get('/housedeal?kapt_code='+kapt_code+'&type='+type)
+           .then(({ data }) => {
+                if(type==0){
+                    commit('UPDATE_DEALITEMS0',data);
+                }else if(type==1){
+                    commit('UPDATE_DEALITEMS1',data);
+                }else if(type==2){
+                    commit('UPDATE_DEALITEMS2',data);
+                }
+           })
+           .catch((err) => {
+               console.log(err);
+           });
     },
     update_item({commit}, payload) {
         apicommon
@@ -283,11 +299,14 @@ const actions = {
     },
 
     async addinterest({getters},{userId,kaptCode}){
-        http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        console.log({userId,kaptCode});
+        //http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await http
-            .post('/auth/wish/add',{userId,kaptCode})
-            .then(({ data })=>{
-                if(data=='fail')return false;
+            .post('/auth/wish/add',{userId,kaptCode},getters.bearertoken)
+            .then((res)=>{
+                console.log(res);
+                if(res.data=='fail')return false;
+                getters.interestitems.push({})
                 return true;
             }).catch((err)=>{
                 console.log(err);
@@ -296,9 +315,9 @@ const actions = {
     },
     async removeinterest({getters},{userId,kaptCode}){
 
-        http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
+        //http.defaults.headers.post['Authorization']="Bearer "+getters.access_token;
         return await http
-            .post('/auth/wish/delete',{userId,kaptCode})
+            .post('/auth/wish/delete',{userId,kaptCode},getters.bearertoken)
             .then(({ data })=>{
                 if(data=='fail')return false;
                 return true;
@@ -309,9 +328,9 @@ const actions = {
     },
     
     async update_infoitemsfrominterest({getters,commit},userId) {
-        http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        //http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
         return await http
-            .get('/auth/wish/'+userId)
+            .get('/auth/wish/'+userId,getters.bearertoken)
             .then(({ data }) => {
                 if(data=='fail')return false;
                 commit('UPDATE_INFOITEMS', data);
@@ -324,12 +343,13 @@ const actions = {
     },
 
     async update_interestitems({getters,commit},userId) {
-        http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
+        //http.defaults.headers.get['Authorization']="Bearer "+getters.access_token;
         return await http
-            .get('/auth/wish/'+userId)
-            .then(({ data }) => {
-                if(data=='fail')return false;
-                commit('UPDATE_INFOITEMS', data);
+            .get('/auth/wish/'+userId,getters.bearertoken)
+            .then((res) => {
+                console.log(res);
+                if(res.data=='fail')return false;
+                commit('UPDATE_interestitems', res.data);
                 return true;
             })
             .catch((err) => {
