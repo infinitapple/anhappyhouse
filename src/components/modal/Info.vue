@@ -55,7 +55,7 @@
                         <td>
                             <div class="text-center mt-3">
                                 <strong>{{aptdiver[0]}}</strong>
-                                <span v-if="dataset0.length">(평균:{{avgmoney0}}만원)</span>
+                                <span v-if="dataset0.length">(평균: {{$store.state.search.avgmoney0}} 만원)</span>
                             </div>
                             <line-chart v-if="dataset0.length" :data="dataset0"></line-chart>
                         </td>
@@ -64,7 +64,7 @@
                         <td>
                             <div class="text-center mt-3">
                                 <strong>{{aptdiver[1]}}</strong>
-                                <span v-if="dataset1.length">(평균:{{avgmoney1}}만원)</span>
+                                <span v-if="dataset1.length">(평균: {{$store.state.search.avgmoney1}} 만원)</span>
                             </div>
                             <div v-if="dataset1.length">
                                 <line-chart :data="dataset1"></line-chart>
@@ -75,7 +75,7 @@
                         <td>
                             <div class="text-center mt-3">
                                 <strong>{{aptdiver[2]}}</strong>
-                                <span v-if="dataset2.length">(평균:{{avgmoney2}}만원)</span>
+                                <span v-if="dataset2.length">(평균: {{$store.state.search.avgmoney2}} 만원)</span>
                             </div>
                             <div v-if="dataset2.length">
                                 <line-chart :data="dataset2"></line-chart>
